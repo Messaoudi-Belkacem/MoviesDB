@@ -73,4 +73,11 @@ dependencies {
     // Icons extended
     implementation ("androidx.compose.material:material-icons-extended:1.6.6")
 
+    // Navigation
+    implementation("androidx.navigation:navigation-compose:2.7.7")
+
+    // Retrofit
+    implementation ("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation ("com.squareup.retrofit2:converter-gson:2.11.0")
+
 }
