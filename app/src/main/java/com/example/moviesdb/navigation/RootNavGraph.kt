@@ -3,25 +3,22 @@ package com.example.moviesdb.navigation
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.material3.SearchBar
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.moviesdb.screen.HomeScreen
 import com.example.moviesdb.screen.MainScreen
-import com.example.moviesdb.screen.SearchScreen
-import com.example.moviesdb.screen.WatchListScreen
 
 @Composable
-fun SetupNavGraph(
-    navHostController: NavHostController,
-    startDestination: String
+fun RootNavigationGraph(
+    navHostController: NavHostController
 ) {
     val time = 500
     NavHost(
         navController = navHostController,
-        startDestination = startDestination,
+        route = Graph.ROOT,
+        startDestination = Graph.AUTHENTICATION,
         enterTransition = { slideInHorizontally(animationSpec = tween(time), initialOffsetX = {fullWidth ->  
             -fullWidth
         }) },
@@ -35,20 +32,16 @@ fun SetupNavGraph(
             fullWidth
         }) }
     ) {
-        composable(
-            route = Screen.Home.route,
-        ) {
-            HomeScreen()
-        }
-        composable(
-            route = Screen.Search.route,
-        ) {
-            SearchScreen()
-        }
-        composable(
-            route = Screen.WatchList.route,
-        ) {
-            WatchListScreen()
+        authNavGraph(navHostController)
+        composable(route = Graph.HOME) {
+            MainScreen()
         }
     }
+}
+
+object Graph {
+    const val ROOT = "root_graph"
+    const val AUTHENTICATION = "authentication_graph"
+    const val HOME = "home_graph"
+    const val DETAILS = "details_graph"
 }

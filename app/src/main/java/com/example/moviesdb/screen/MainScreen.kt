@@ -3,18 +3,17 @@ package com.example.moviesdb.screen
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.moviesdb.item.BottomNavigationBar
-import com.example.moviesdb.navigation.Screen
-import com.example.moviesdb.navigation.SetupNavGraph
+import com.example.moviesdb.navigation.BottomBarScreen
+import com.example.moviesdb.navigation.HomeNavGraph
+import com.example.moviesdb.navigation.RootNavigationGraph
 
 @Composable
-fun MainScreen(navHostController: NavHostController) {
-    val startDestination = Screen.Home.route
+fun MainScreen(navHostController: NavHostController = rememberNavController()) {
     Scaffold(
         bottomBar = {
             BottomNavigationBar(navHostController = navHostController)
@@ -24,10 +23,7 @@ fun MainScreen(navHostController: NavHostController) {
             modifier = Modifier
                 .padding(innerPadding)
         ) {
-            SetupNavGraph(
-                navHostController = navHostController,
-                startDestination = startDestination
-            )
+            HomeNavGraph(navController = navHostController)
         }
     }
 }

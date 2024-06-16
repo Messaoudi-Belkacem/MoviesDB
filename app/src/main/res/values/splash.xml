@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.MyApp.MySplash" parent="Theme.SplashScreen" >
+    <style name="Theme.MoviesDB.MySplash" parent="Theme.SplashScreen" >
         <item name="windowSplashScreenBackground">#242A32</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/popcorn</item>
         <item name="postSplashScreenTheme">@style/Theme.MoviesDB</item>
