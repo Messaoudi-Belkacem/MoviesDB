@@ -7,10 +7,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.example.moviesdb.item.BottomNavigationBar
-import com.example.moviesdb.navigation.BottomBarScreen
+import com.example.moviesdb.screen.common.BottomNavigationBar
 import com.example.moviesdb.navigation.HomeNavGraph
-import com.example.moviesdb.navigation.RootNavigationGraph
 
 @Composable
 fun MainScreen(navHostController: NavHostController = rememberNavController()) {

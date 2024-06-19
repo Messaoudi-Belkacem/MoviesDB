@@ -6,11 +6,13 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
+import androidx.paging.ExperimentalPagingApi
 import com.example.moviesdb.screen.BookmarksScreen
 import com.example.moviesdb.screen.DetailsScreen
-import com.example.moviesdb.screen.HomeScreen
 import com.example.moviesdb.screen.SearchScreen
+import com.example.moviesdb.screen.home.HomeScreen
 
+@OptIn(ExperimentalPagingApi::class)
 @Composable
 fun HomeNavGraph(navController: NavHostController) {
     NavHost(
