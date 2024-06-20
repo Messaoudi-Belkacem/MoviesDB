@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -54,11 +55,11 @@ fun BottomNavigationBar(navHostController: NavHostController) {
     val bottomBarDestination = bottomBarScreens.any { it.route == currentDestination?.route }
     if (bottomBarDestination) {
         Column {
-            Divider(
-                color = MyBlue80,
+            HorizontalDivider(
                 modifier = Modifier
                     .height(1.dp)
-                    .fillMaxWidth()
+                    .fillMaxWidth(),
+                color = MyBlue80
             )
             Spacer(
                 modifier = Modifier.height(8.dp)
@@ -118,7 +119,6 @@ fun NavItem(
 fun MovieItem(movie: Movie) {
     Card(
         modifier = Modifier
-            .padding(16.dp)
             .width(140.dp)
             .height(210.dp)
     ) {

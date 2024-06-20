@@ -6,22 +6,24 @@ import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
 import androidx.room.withTransaction
 import com.example.moviesdb.data.local.MovieDatabase
-import com.example.moviesdb.data.model.ApiRemoteKeys
-import com.example.moviesdb.data.model.Movie
+import com.example.moviesdb.data.model.ApiByDiscoverRemoteKeys
+import com.example.moviesdb.data.model.ApiByNowPlayingRemoteKeys
+import com.example.moviesdb.data.model.MovieByDiscover
+import com.example.moviesdb.data.model.MovieByNowPlaying
 import com.example.moviesdb.data.remote.MovieApi
 
 @ExperimentalPagingApi
 class ApiNowPlayingRemoteMediator(
     private val movieApi: MovieApi,
     private val movieDatabase: MovieDatabase
-) : RemoteMediator<Int, Movie>() {
+) : RemoteMediator<Int, MovieByNowPlaying>() {
 
-    private val apiMovieDao = movieDatabase.apiMovieDao()
-    private val apiRemoteKeysDao = movieDatabase.apiRemoteKeysDao()
+    private val apiByNowPlayingMovieDao = movieDatabase.apiMovieByNowPlayingDao()
+    private val apiByNowPlayingRemoteKeysDao = movieDatabase.apiByNowPlayingRemoteKeysDao()
 
     override suspend fun load(
         loadType: LoadType,
-        state: PagingState<Int, Movie>
+        state: PagingState<Int, MovieByNowPlaying>
     ): MediatorResult {
         return try {
             val currentPage = when (loadType) {
@@ -55,18 +57,18 @@ class ApiNowPlayingRemoteMediator(
 
             movieDatabase.withTransaction {
                 if (loadType == LoadType.REFRESH) {
-                    apiMovieDao.deleteAllMovies()
-                    apiRemoteKeysDao.deleteAllRemoteKeys()
+                    apiByNowPlayingMovieDao.deleteAllMovies()
+                    apiByNowPlayingRemoteKeysDao.deleteAllRemoteKeys()
                 }
                 val keys = response.map { movie ->
-                    ApiRemoteKeys(
+                    ApiByNowPlayingRemoteKeys(
                         id = movie.id.toString(),
                         prevPage = prevPage,
                         nextPage = nextPage
                     )
                 }
-                apiRemoteKeysDao.addAllRemoteKeys(remoteKeys = keys)
-                apiMovieDao.addMovies(movies = response)
+                apiByNowPlayingRemoteKeysDao.addAllRemoteKeys(remoteKeys = keys)
+                apiByNowPlayingMovieDao.addMovies(movies = response)
             }
             MediatorResult.Success(endOfPaginationReached = endOfPaginationReached)
         } catch (e: Exception) {
@@ -75,30 +77,30 @@ class ApiNowPlayingRemoteMediator(
     }
 
     private suspend fun getRemoteKeyClosestToCurrentPosition(
-        state: PagingState<Int, Movie>
-    ): ApiRemoteKeys? {
+        state: PagingState<Int, MovieByNowPlaying>
+    ): ApiByNowPlayingRemoteKeys? {
         return state.anchorPosition?.let { position ->
             state.closestItemToPosition(position)?.id?.let { id ->
-                apiRemoteKeysDao.getRemoteKeys(id = id.toString())
+                apiByNowPlayingRemoteKeysDao.getRemoteKeys(id = id.toString())
             }
         }
     }
 
     private suspend fun getRemoteKeyForFirstItem(
-        state: PagingState<Int, Movie>
-    ): ApiRemoteKeys? {
+        state: PagingState<Int, MovieByNowPlaying>
+    ): ApiByNowPlayingRemoteKeys? {
         return state.pages.firstOrNull { it.data.isNotEmpty() }?.data?.firstOrNull()
             ?.let { unsplashImage ->
-                apiRemoteKeysDao.getRemoteKeys(id = unsplashImage.id.toString())
+                apiByNowPlayingRemoteKeysDao.getRemoteKeys(id = unsplashImage.id.toString())
             }
     }
 
     private suspend fun getRemoteKeyForLastItem(
-        state: PagingState<Int, Movie>
-    ): ApiRemoteKeys? {
+        state: PagingState<Int, MovieByNowPlaying>
+    ): ApiByNowPlayingRemoteKeys? {
         return state.pages.lastOrNull { it.data.isNotEmpty() }?.data?.lastOrNull()
             ?.let { unsplashImage ->
-                apiRemoteKeysDao.getRemoteKeys(id = unsplashImage.id.toString())
+                apiByNowPlayingRemoteKeysDao.getRemoteKeys(id = unsplashImage.id.toString())
             }
     }
 }

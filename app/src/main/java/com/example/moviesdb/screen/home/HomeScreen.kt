@@ -5,6 +5,7 @@ import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -40,7 +41,7 @@ import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.moviesdb.R
-import com.example.moviesdb.data.model.Movie
+import com.example.moviesdb.data.model.MovieByNowPlaying
 import com.example.moviesdb.screen.common.MovieItem
 
 @OptIn(ExperimentalPagingApi::class)
@@ -48,10 +49,12 @@ import com.example.moviesdb.screen.common.MovieItem
 fun HomeScreen(homeViewModel: HomeViewModel = hiltViewModel()) {
 
     LaunchedEffect(Unit) {
-        homeViewModel.searchMovie()
+        homeViewModel.getMoviesByDiscover()
+        homeViewModel.getMoviesByNowPlaying()
     }
 
-    val discoveredMovies = homeViewModel.movieFlow.collectAsLazyPagingItems()
+    val discoveredMovies = homeViewModel.movieByDiscoverFlow.collectAsLazyPagingItems()
+    val nowPlayingMovies = homeViewModel.movieByNowPlayingFlow.collectAsLazyPagingItems()
     var tabIndex by remember { mutableIntStateOf(0) }
     val tabs = listOf("Now Playing", "Popular", "Top Rated", "Upcoming")
     val fontFamily = FontFamily(Font(R.font.poppins))
@@ -83,14 +86,11 @@ fun HomeScreen(homeViewModel: HomeViewModel = hiltViewModel()) {
         ) {
             when (discoveredMovies.loadState.refresh) {
                 is LoadState.Loading -> {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(64.dp),
-                        color = MaterialTheme.colorScheme.primary,
-                    )
+                    LoadingCircle()
                 }
                 is LoadState.Error -> {
                     Button(
-                        onClick = { homeViewModel.searchMovie() },
+                        onClick = { homeViewModel.getMoviesByDiscover() },
                         shape = RoundedCornerShape(8.dp)
                     ) {
                         Text(
@@ -113,12 +113,15 @@ fun HomeScreen(homeViewModel: HomeViewModel = hiltViewModel()) {
                 else -> {
                     LazyRow(
                         modifier = Modifier
-                            .fillMaxWidth(1f)
+                            .fillMaxWidth(1f),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        contentPadding = PaddingValues(8.dp)
                     ) {
                         items(count = discoveredMovies.itemCount) { index ->
                             val item = discoveredMovies[index]
                             if (item != null) {
-                                MovieItem(movie = item)
+                                val movie = homeViewModel.convertMovieByDiscoverToMovie(item)
+                                MovieItem(movie = movie)
                             } else {
                                 Log.d("HomeScreen.kt", "item number $index is null")
                             }
@@ -133,44 +136,113 @@ fun HomeScreen(homeViewModel: HomeViewModel = hiltViewModel()) {
             ) {
                 tabs.forEachIndexed { index, title ->
                     Tab(
-                        text = { Text(text = title, fontFamily = fontFamily) },
+                        text = { Text(text = title, fontFamily = fontFamily, fontSize = 12.sp) },
                         selected = tabIndex == index,
                         onClick = { tabIndex = index }
                     )
                 }
             }
-            when (tabIndex) {
-                is 0 -> {
-
-                }
-                is 1 -> {
-
-                }
-                is 2 -> {
-
-                }
-                is 3 -> {
-
+            Box(
+                modifier = Modifier.fillMaxSize(1f),
+                contentAlignment = Alignment.Center
+            ) {
+                when (tabIndex) {
+                    0 -> {
+                        when (nowPlayingMovies.loadState.refresh) {
+                            is LoadState.Loading -> {
+                                LoadingCircle()
+                            }
+                            is LoadState.Error -> {
+                                Button(
+                                    onClick = { homeViewModel.getMoviesByDiscover() },
+                                    shape = RoundedCornerShape(8.dp)
+                                ) {
+                                    Text(
+                                        text = "RETRY",
+                                        fontSize = MaterialTheme.typography.titleMedium.fontSize
+                                    )
+                                }
+                                Toast.makeText(
+                                    context,
+                                    "Unexpected error",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                (discoveredMovies.loadState.refresh as LoadState.Error).error.message?.let {
+                                    Log.d("HomeScreen.kt",
+                                        it
+                                    )
+                                }
+                                (discoveredMovies.loadState.refresh as LoadState.Error).error.printStackTrace()
+                            }
+                            else -> {
+                                TabContent(lazyPagingItems = nowPlayingMovies, homeViewModel = homeViewModel)
+                            }
+                        }
+                    }
+                    1 -> {
+                        Text(
+                            text = "Popular",
+                            color = MaterialTheme.colorScheme.onBackground,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            fontFamily = fontFamily
+                        )
+                    }
+                    2 -> {
+                        Text(
+                            text = "Top Rated",
+                            color = MaterialTheme.colorScheme.onBackground,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            fontFamily = fontFamily
+                        )
+                    }
+                    3 -> {
+                        Text(
+                            text = "Upcoming",
+                            color = MaterialTheme.colorScheme.onBackground,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            fontFamily = fontFamily
+                        )
+                    }
                 }
             }
         }
     }
 }
 
+@OptIn(ExperimentalPagingApi::class)
 @Composable
-fun TabContent(lazyPagingItems: LazyPagingItems<Movie>) {
+fun TabContent(
+    lazyPagingItems: LazyPagingItems<MovieByNowPlaying>,
+    homeViewModel: HomeViewModel
+) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(count = 3),
         modifier = Modifier
-            .fillMaxWidth(1f)
+            .fillMaxSize(1f),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = PaddingValues(8.dp)
+
     ) {
         items(count = lazyPagingItems.itemCount) { index ->
             val item = lazyPagingItems[index]
             if (item != null) {
-                MovieItem(movie = item)
+                val movie = homeViewModel.convertMovieByNowPlayingToMovie(item)
+                MovieItem(movie = movie)
             } else {
                 Log.d("HomeScreen.kt", "item number $index is null")
             }
         }
     }
+}
+
+@Composable
+fun LoadingCircle() {
+    CircularProgressIndicator(
+        modifier = Modifier.size(40.dp),
+        color = MaterialTheme.colorScheme.primary,
+    )
 }

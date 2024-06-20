@@ -6,22 +6,22 @@ import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
 import androidx.room.withTransaction
 import com.example.moviesdb.data.local.MovieDatabase
-import com.example.moviesdb.data.model.ApiRemoteKeys
-import com.example.moviesdb.data.model.Movie
+import com.example.moviesdb.data.model.ApiByDiscoverRemoteKeys
+import com.example.moviesdb.data.model.MovieByDiscover
 import com.example.moviesdb.data.remote.MovieApi
 
 @ExperimentalPagingApi
 class ApiDiscoverRemoteMediator(
     private val movieApi: MovieApi,
     private val movieDatabase: MovieDatabase
-) : RemoteMediator<Int, Movie>() {
+) : RemoteMediator<Int, MovieByDiscover>() {
 
-    private val apiMovieDao = movieDatabase.apiMovieDao()
-    private val apiRemoteKeysDao = movieDatabase.apiRemoteKeysDao()
+    private val apiMovieDao = movieDatabase.apiMovieByDiscoverDao()
+    private val apiRemoteKeysDao = movieDatabase.apiByDiscoverRemoteKeysDao()
 
     override suspend fun load(
         loadType: LoadType,
-        state: PagingState<Int, Movie>
+        state: PagingState<Int, MovieByDiscover>
     ): MediatorResult {
         return try {
             val currentPage = when (loadType) {
@@ -59,7 +59,7 @@ class ApiDiscoverRemoteMediator(
                     apiRemoteKeysDao.deleteAllRemoteKeys()
                 }
                 val keys = response.map { movie ->
-                    ApiRemoteKeys(
+                    ApiByDiscoverRemoteKeys(
                         id = movie.id.toString(),
                         prevPage = prevPage,
                         nextPage = nextPage
@@ -75,8 +75,8 @@ class ApiDiscoverRemoteMediator(
     }
 
     private suspend fun getRemoteKeyClosestToCurrentPosition(
-        state: PagingState<Int, Movie>
-    ): ApiRemoteKeys? {
+        state: PagingState<Int, MovieByDiscover>
+    ): ApiByDiscoverRemoteKeys? {
         return state.anchorPosition?.let { position ->
             state.closestItemToPosition(position)?.id?.let { id ->
                 apiRemoteKeysDao.getRemoteKeys(id = id.toString())
@@ -85,8 +85,8 @@ class ApiDiscoverRemoteMediator(
     }
 
     private suspend fun getRemoteKeyForFirstItem(
-        state: PagingState<Int, Movie>
-    ): ApiRemoteKeys? {
+        state: PagingState<Int, MovieByDiscover>
+    ): ApiByDiscoverRemoteKeys? {
         return state.pages.firstOrNull { it.data.isNotEmpty() }?.data?.firstOrNull()
             ?.let { unsplashImage ->
                 apiRemoteKeysDao.getRemoteKeys(id = unsplashImage.id.toString())
@@ -94,8 +94,8 @@ class ApiDiscoverRemoteMediator(
     }
 
     private suspend fun getRemoteKeyForLastItem(
-        state: PagingState<Int, Movie>
-    ): ApiRemoteKeys? {
+        state: PagingState<Int, MovieByDiscover>
+    ): ApiByDiscoverRemoteKeys? {
         return state.pages.lastOrNull { it.data.isNotEmpty() }?.data?.lastOrNull()
             ?.let { unsplashImage ->
                 apiRemoteKeysDao.getRemoteKeys(id = unsplashImage.id.toString())
