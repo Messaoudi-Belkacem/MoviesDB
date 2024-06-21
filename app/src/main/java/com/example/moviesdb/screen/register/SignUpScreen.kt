@@ -1,5 +1,6 @@
 package com.example.moviesdb.screen.register
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -15,14 +16,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import com.example.moviesdb.navigation.AuthenticationScreen
 import com.example.moviesdb.screen.common.SimpleOutlinedTextFieldSample
 
 @Composable
@@ -110,6 +109,9 @@ fun SignUpScreen(
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 14.sp,
                 modifier = Modifier
+                    .clickable {
+                        navController.navigate(AuthenticationScreen.Login.route)
+                    }
             )
         }
     }
