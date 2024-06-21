@@ -9,6 +9,9 @@ import androidx.paging.cachedIn
 import com.example.moviesdb.data.model.Movie
 import com.example.moviesdb.data.model.MovieByDiscover
 import com.example.moviesdb.data.model.MovieByNowPlaying
+import com.example.moviesdb.data.model.MovieByPopular
+import com.example.moviesdb.data.model.MovieByTopRated
+import com.example.moviesdb.data.model.MovieByUpcoming
 import com.example.moviesdb.data.repository.Repository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
@@ -27,6 +30,15 @@ class HomeViewModel @Inject constructor(private val repository: Repository) : Vi
 
     private val _movieByNowPlayingFlow = MutableStateFlow<PagingData<MovieByNowPlaying>>(PagingData.empty())
     val movieByNowPlayingFlow: StateFlow<PagingData<MovieByNowPlaying>> = _movieByNowPlayingFlow.asStateFlow()
+
+    private val _movieByPopularFlow = MutableStateFlow<PagingData<MovieByPopular>>(PagingData.empty())
+    val movieByPopularFlow: StateFlow<PagingData<MovieByPopular>> = _movieByPopularFlow.asStateFlow()
+
+    private val _movieByTopRatedFlow = MutableStateFlow<PagingData<MovieByTopRated>>(PagingData.empty())
+    val movieByTopRatedFlow: StateFlow<PagingData<MovieByTopRated>> = _movieByTopRatedFlow.asStateFlow()
+
+    private val _movieByUpcomingFlow = MutableStateFlow<PagingData<MovieByUpcoming>>(PagingData.empty())
+    val movieByUpcomingFlow: StateFlow<PagingData<MovieByUpcoming>> = _movieByUpcomingFlow.asStateFlow()
 
     fun getMoviesByDiscover() {
         viewModelScope.launch {
@@ -68,6 +80,66 @@ class HomeViewModel @Inject constructor(private val repository: Repository) : Vi
         }
     }
 
+    fun getMoviesByPopular() {
+        viewModelScope.launch {
+            try {
+                repository.getAllMoviesByPopular()
+                    .cachedIn(viewModelScope)
+                    .catch { e ->
+                        Log.d(tag, "An unexpected error occurred.", e)
+                    }
+                    .collectLatest { pagingData ->
+                        _movieByPopularFlow.value = pagingData
+                        Log.d(tag, "response was successful")
+                    }
+            } catch (e: ConnectException) {
+                Log.d(tag, "Failed to connect to the server. Please check your internet connection.")
+            } catch (e: Exception) {
+                Log.d(tag, "An unexpected error occurred.", e)
+            }
+        }
+    }
+
+    fun getMoviesByTopRated() {
+        viewModelScope.launch {
+            try {
+                repository.getAllMoviesByTopRated()
+                    .cachedIn(viewModelScope)
+                    .catch { e ->
+                        Log.d(tag, "An unexpected error occurred.", e)
+                    }
+                    .collectLatest { pagingData ->
+                        _movieByTopRatedFlow.value = pagingData
+                        Log.d(tag, "response was successful")
+                    }
+            } catch (e: ConnectException) {
+                Log.d(tag, "Failed to connect to the server. Please check your internet connection.")
+            } catch (e: Exception) {
+                Log.d(tag, "An unexpected error occurred.", e)
+            }
+        }
+    }
+
+    fun getMoviesByUpcoming() {
+        viewModelScope.launch {
+            try {
+                repository.getAllMoviesByUpcoming()
+                    .cachedIn(viewModelScope)
+                    .catch { e ->
+                        Log.d(tag, "An unexpected error occurred.", e)
+                    }
+                    .collectLatest { pagingData ->
+                        _movieByUpcomingFlow.value = pagingData
+                        Log.d(tag, "response was successful")
+                    }
+            } catch (e: ConnectException) {
+                Log.d(tag, "Failed to connect to the server. Please check your internet connection.")
+            } catch (e: Exception) {
+                Log.d(tag, "An unexpected error occurred.", e)
+            }
+        }
+    }
+
     fun convertMovieByDiscoverToMovie(movieByDiscover: MovieByDiscover): Movie {
         return Movie(
             id = movieByDiscover.id,
@@ -96,5 +168,45 @@ class HomeViewModel @Inject constructor(private val repository: Repository) : Vi
         )
     }
 
+    fun convertMovieByPopularToMovie(movieByPopular: MovieByPopular): Movie {
+        return Movie(
+            id = movieByPopular.id,
+            title = movieByPopular.title,
+            overview = movieByPopular.overview,
+            posterPath = movieByPopular.posterPath,
+            backdropPath = movieByPopular.backdropPath,
+            releaseDate = movieByPopular.releaseDate,
+            genreIds = movieByPopular.genreIds,
+            voteAverage = movieByPopular.voteAverage,
+            voteCount = movieByPopular.voteCount
+        )
+    }
 
+    fun convertMovieByTopRatedToMovie(movieByTopRated: MovieByTopRated): Movie {
+        return Movie(
+            id = movieByTopRated.id,
+            title = movieByTopRated.title,
+            overview = movieByTopRated.overview,
+            posterPath = movieByTopRated.posterPath,
+            backdropPath = movieByTopRated.backdropPath,
+            releaseDate = movieByTopRated.releaseDate,
+            genreIds = movieByTopRated.genreIds,
+            voteAverage = movieByTopRated.voteAverage,
+            voteCount = movieByTopRated.voteCount
+        )
+    }
+
+    fun convertMovieByUpcomingToMovie(movieByUpcoming: MovieByUpcoming): Movie {
+        return Movie(
+            id = movieByUpcoming.id,
+            title = movieByUpcoming.title,
+            overview = movieByUpcoming.overview,
+            posterPath = movieByUpcoming.posterPath,
+            backdropPath = movieByUpcoming.backdropPath,
+            releaseDate = movieByUpcoming.releaseDate,
+            genreIds = movieByUpcoming.genreIds,
+            voteAverage = movieByUpcoming.voteAverage,
+            voteCount = movieByUpcoming.voteCount
+        )
+    }
 }

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -42,6 +43,9 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.moviesdb.R
 import com.example.moviesdb.data.model.MovieByNowPlaying
+import com.example.moviesdb.data.model.MovieByPopular
+import com.example.moviesdb.data.model.MovieByTopRated
+import com.example.moviesdb.data.model.MovieByUpcoming
 import com.example.moviesdb.screen.common.MovieItem
 
 @OptIn(ExperimentalPagingApi::class)
@@ -51,10 +55,20 @@ fun HomeScreen(homeViewModel: HomeViewModel = hiltViewModel()) {
     LaunchedEffect(Unit) {
         homeViewModel.getMoviesByDiscover()
         homeViewModel.getMoviesByNowPlaying()
+        homeViewModel.getMoviesByPopular()
+        homeViewModel.getMoviesByTopRated()
+        homeViewModel.getMoviesByUpcoming()
     }
+
+    val modifierForRowItem = Modifier
+        .height(240.dp)
+        .width(160.dp)
 
     val discoveredMovies = homeViewModel.movieByDiscoverFlow.collectAsLazyPagingItems()
     val nowPlayingMovies = homeViewModel.movieByNowPlayingFlow.collectAsLazyPagingItems()
+    val popularMovies = homeViewModel.movieByPopularFlow.collectAsLazyPagingItems()
+    val topRatedMovies = homeViewModel.movieByTopRatedFlow.collectAsLazyPagingItems()
+    val upcomingMovies = homeViewModel.movieByUpcomingFlow.collectAsLazyPagingItems()
     var tabIndex by remember { mutableIntStateOf(0) }
     val tabs = listOf("Now Playing", "Popular", "Top Rated", "Upcoming")
     val fontFamily = FontFamily(Font(R.font.poppins))
@@ -114,14 +128,14 @@ fun HomeScreen(homeViewModel: HomeViewModel = hiltViewModel()) {
                     LazyRow(
                         modifier = Modifier
                             .fillMaxWidth(1f),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        contentPadding = PaddingValues(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(32.dp),
+                        contentPadding = PaddingValues(16.dp)
                     ) {
                         items(count = discoveredMovies.itemCount) { index ->
                             val item = discoveredMovies[index]
                             if (item != null) {
                                 val movie = homeViewModel.convertMovieByDiscoverToMovie(item)
-                                MovieItem(movie = movie)
+                                MovieItem(movie = movie, modifier = modifierForRowItem)
                             } else {
                                 Log.d("HomeScreen.kt", "item number $index is null")
                             }
@@ -175,36 +189,133 @@ fun HomeScreen(homeViewModel: HomeViewModel = hiltViewModel()) {
                                 (discoveredMovies.loadState.refresh as LoadState.Error).error.printStackTrace()
                             }
                             else -> {
-                                TabContent(lazyPagingItems = nowPlayingMovies, homeViewModel = homeViewModel)
+                                TabContent(
+                                    nowPlayingLazyPagingItems = nowPlayingMovies,
+                                    popularLazyPagingItems = null,
+                                    topRatedLazyPagingItems = null,
+                                    upcomingLazyPagingItems = null,
+                                    homeViewModel = homeViewModel,
+                                    tabIndex = tabIndex
+                                )
                             }
                         }
                     }
                     1 -> {
-                        Text(
-                            text = "Popular",
-                            color = MaterialTheme.colorScheme.onBackground,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            fontFamily = fontFamily
-                        )
+                        when (popularMovies.loadState.refresh) {
+                            is LoadState.Loading -> {
+                                LoadingCircle()
+                            }
+                            is LoadState.Error -> {
+                                Button(
+                                    onClick = { homeViewModel.getMoviesByPopular() },
+                                    shape = RoundedCornerShape(8.dp)
+                                ) {
+                                    Text(
+                                        text = "RETRY",
+                                        fontSize = MaterialTheme.typography.titleMedium.fontSize
+                                    )
+                                }
+                                Toast.makeText(
+                                    context,
+                                    "Unexpected error",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                (popularMovies.loadState.refresh as LoadState.Error).error.message?.let {
+                                    Log.d("HomeScreen.kt",
+                                        it
+                                    )
+                                }
+                                (discoveredMovies.loadState.refresh as LoadState.Error).error.printStackTrace()
+                            }
+                            else -> {
+                                TabContent(
+                                    nowPlayingLazyPagingItems = null,
+                                    popularLazyPagingItems = popularMovies,
+                                    topRatedLazyPagingItems = null,
+                                    upcomingLazyPagingItems = null,
+                                    homeViewModel = homeViewModel,
+                                    tabIndex = tabIndex
+                                )
+                            }
+                        }
                     }
                     2 -> {
-                        Text(
-                            text = "Top Rated",
-                            color = MaterialTheme.colorScheme.onBackground,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            fontFamily = fontFamily
-                        )
+                        when (topRatedMovies.loadState.refresh) {
+                            is LoadState.Loading -> {
+                                LoadingCircle()
+                            }
+                            is LoadState.Error -> {
+                                Button(
+                                    onClick = { homeViewModel.getMoviesByTopRated() },
+                                    shape = RoundedCornerShape(8.dp)
+                                ) {
+                                    Text(
+                                        text = "RETRY",
+                                        fontSize = MaterialTheme.typography.titleMedium.fontSize
+                                    )
+                                }
+                                Toast.makeText(
+                                    context,
+                                    "Unexpected error",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                (popularMovies.loadState.refresh as LoadState.Error).error.message?.let {
+                                    Log.d("HomeScreen.kt",
+                                        it
+                                    )
+                                }
+                                (discoveredMovies.loadState.refresh as LoadState.Error).error.printStackTrace()
+                            }
+                            else -> {
+                                TabContent(
+                                    nowPlayingLazyPagingItems = null,
+                                    popularLazyPagingItems = null,
+                                    topRatedLazyPagingItems = topRatedMovies,
+                                    upcomingLazyPagingItems = null,
+                                    homeViewModel = homeViewModel,
+                                    tabIndex = tabIndex
+                                )
+                            }
+                        }
                     }
                     3 -> {
-                        Text(
-                            text = "Upcoming",
-                            color = MaterialTheme.colorScheme.onBackground,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            fontFamily = fontFamily
-                        )
+                        when (upcomingMovies.loadState.refresh) {
+                            is LoadState.Loading -> {
+                                LoadingCircle()
+                            }
+                            is LoadState.Error -> {
+                                Button(
+                                    onClick = { homeViewModel.getMoviesByUpcoming() },
+                                    shape = RoundedCornerShape(8.dp)
+                                ) {
+                                    Text(
+                                        text = "RETRY",
+                                        fontSize = MaterialTheme.typography.titleMedium.fontSize
+                                    )
+                                }
+                                Toast.makeText(
+                                    context,
+                                    "Unexpected error",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                (popularMovies.loadState.refresh as LoadState.Error).error.message?.let {
+                                    Log.d("HomeScreen.kt",
+                                        it
+                                    )
+                                }
+                                (discoveredMovies.loadState.refresh as LoadState.Error).error.printStackTrace()
+                            }
+                            else -> {
+                                TabContent(
+                                    nowPlayingLazyPagingItems = null,
+                                    popularLazyPagingItems = null,
+                                    topRatedLazyPagingItems = null,
+                                    upcomingLazyPagingItems = upcomingMovies,
+                                    homeViewModel = homeViewModel,
+                                    tabIndex = tabIndex
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -215,8 +326,12 @@ fun HomeScreen(homeViewModel: HomeViewModel = hiltViewModel()) {
 @OptIn(ExperimentalPagingApi::class)
 @Composable
 fun TabContent(
-    lazyPagingItems: LazyPagingItems<MovieByNowPlaying>,
-    homeViewModel: HomeViewModel
+    nowPlayingLazyPagingItems: LazyPagingItems<MovieByNowPlaying>?,
+    popularLazyPagingItems: LazyPagingItems<MovieByPopular>?,
+    topRatedLazyPagingItems: LazyPagingItems<MovieByTopRated>?,
+    upcomingLazyPagingItems: LazyPagingItems<MovieByUpcoming>?,
+    homeViewModel: HomeViewModel,
+    tabIndex: Int
 ) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(count = 3),
@@ -227,22 +342,65 @@ fun TabContent(
         contentPadding = PaddingValues(8.dp)
 
     ) {
-        items(count = lazyPagingItems.itemCount) { index ->
-            val item = lazyPagingItems[index]
-            if (item != null) {
-                val movie = homeViewModel.convertMovieByNowPlayingToMovie(item)
-                MovieItem(movie = movie)
-            } else {
-                Log.d("HomeScreen.kt", "item number $index is null")
+        when (tabIndex) {
+            0 -> {
+                items(count = nowPlayingLazyPagingItems!!.itemCount) { index ->
+                    val item = nowPlayingLazyPagingItems[index]
+                    if (item != null) {
+                        val movie = homeViewModel.convertMovieByNowPlayingToMovie(item)
+                        MovieItem(movie = movie, modifier = null)
+                    } else {
+                        Log.d("HomeScreen.kt", "item number $index is null")
+                    }
+                }
+            }
+            1 -> {
+                items(count = popularLazyPagingItems!!.itemCount) { index ->
+                    val item = popularLazyPagingItems[index]
+                    if (item != null) {
+                        val movie = homeViewModel.convertMovieByPopularToMovie(item)
+                        MovieItem(movie = movie, modifier = null)
+                    } else {
+                        Log.d("HomeScreen.kt", "item number $index is null")
+                    }
+                }
+            }
+            2 -> {
+                items(count = topRatedLazyPagingItems!!.itemCount) { index ->
+                    val item = topRatedLazyPagingItems[index]
+                    if (item != null) {
+                        val movie = homeViewModel.convertMovieByTopRatedToMovie(item)
+                        MovieItem(movie = movie, modifier = null)
+                    } else {
+                        Log.d("HomeScreen.kt", "item number $index is null")
+                    }
+                }
+            }
+            3 -> {
+                items(count = upcomingLazyPagingItems!!.itemCount) { index ->
+                    val item = upcomingLazyPagingItems[index]
+                    if (item != null) {
+                        val movie = homeViewModel.convertMovieByUpcomingToMovie(item)
+                        MovieItem(movie = movie, modifier = null)
+                    } else {
+                        Log.d("HomeScreen.kt", "item number $index is null")
+                    }
+                }
             }
         }
+
     }
 }
 
 @Composable
 fun LoadingCircle() {
-    CircularProgressIndicator(
-        modifier = Modifier.size(40.dp),
-        color = MaterialTheme.colorScheme.primary,
-    )
+    Box(
+        modifier = Modifier.height(240.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        CircularProgressIndicator(
+            modifier = Modifier.size(40.dp),
+            color = MaterialTheme.colorScheme.primary,
+        )
+    }
 }

@@ -18,8 +18,13 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.Divider
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -27,7 +32,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -116,11 +124,10 @@ fun NavItem(
 }
 
 @Composable
-fun MovieItem(movie: Movie) {
+fun MovieItem(movie: Movie, modifier: Modifier?) {
     Card(
-        modifier = Modifier
-            .width(140.dp)
-            .height(210.dp)
+        modifier = modifier ?: Modifier.height(210.dp).width(140.dp),
+        shape = RoundedCornerShape(16.dp)
     ) {
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
@@ -133,4 +140,26 @@ fun MovieItem(movie: Movie) {
             modifier = Modifier.fillMaxSize()
         )
     }
+}
+
+@Composable
+fun SimpleOutlinedTextFieldSample(
+    label: String,
+    modifier: Modifier,
+    onTextChanged: (String) -> Unit
+) {
+    var text by remember { mutableStateOf("") }
+
+    OutlinedTextField(
+        value = text,
+        onValueChange = {
+            text = it
+            onTextChanged(it)
+        },
+        placeholder = { Text(label) },
+        modifier = modifier,
+        shape = RoundedCornerShape(10.dp),
+        singleLine = true,
+        textStyle = TextStyle.Default.copy(fontSize = 16.sp, fontWeight = FontWeight.Medium)
+    )
 }

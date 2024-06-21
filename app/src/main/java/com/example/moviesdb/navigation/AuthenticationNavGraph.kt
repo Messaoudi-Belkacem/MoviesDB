@@ -4,8 +4,9 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
-import com.example.moviesdb.screen.LoginScreen
+import com.example.moviesdb.screen.login.LoginScreen
 import com.example.moviesdb.screen.ScreenContent
+import com.example.moviesdb.screen.register.SignUpScreen
 
 fun NavGraphBuilder.authNavGraph(navController: NavHostController) {
     navigation(
@@ -14,20 +15,13 @@ fun NavGraphBuilder.authNavGraph(navController: NavHostController) {
     ) {
         composable(route = AuthenticationScreen.Login.route) {
             LoginScreen(
-                onClick = {
-                    navController.popBackStack()
-                    navController.navigate(Graph.HOME)
-                },
-                onSignUpClick = {
-                    navController.navigate(AuthenticationScreen.SignUp.route)
-                },
-                onForgotClick = {
-                    navController.navigate(AuthenticationScreen.Forgot.route)
-                }
+                navController = navController
             )
         }
         composable(route = AuthenticationScreen.SignUp.route) {
-            ScreenContent(name = AuthenticationScreen.SignUp.route) {}
+            SignUpScreen(
+                navController = navController
+            )
         }
         composable(route = AuthenticationScreen.Forgot.route) {
             ScreenContent(name = AuthenticationScreen.Forgot.route) {}

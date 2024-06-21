@@ -1,11 +1,10 @@
-package com.example.moviesdb.data.local.dao
+package com.example.moviesdb.data.local.dao.now_playing
 
 import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.example.moviesdb.data.model.MovieByDiscover
 import com.example.moviesdb.data.model.MovieByNowPlaying
 
 @Dao
