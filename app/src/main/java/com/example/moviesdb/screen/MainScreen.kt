@@ -7,11 +7,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import androidx.paging.ExperimentalPagingApi
+import com.example.moviesdb.SharedViewModel
 import com.example.moviesdb.screen.common.BottomNavigationBar
 import com.example.moviesdb.navigation.HomeNavGraph
 
+@OptIn(ExperimentalPagingApi::class)
 @Composable
-fun MainScreen(navHostController: NavHostController = rememberNavController()) {
+fun MainScreen(navHostController: NavHostController = rememberNavController(), sharedViewModel: SharedViewModel) {
     Scaffold(
         bottomBar = {
             BottomNavigationBar(navHostController = navHostController)
@@ -21,7 +24,7 @@ fun MainScreen(navHostController: NavHostController = rememberNavController()) {
             modifier = Modifier
                 .padding(innerPadding)
         ) {
-            HomeNavGraph(navController = navHostController)
+            HomeNavGraph(navController = navHostController, sharedViewModel = sharedViewModel)
         }
     }
 }

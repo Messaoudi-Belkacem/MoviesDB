@@ -1,11 +1,20 @@
 package com.example.moviesdb.data.remote
 
+import com.example.moviesdb.data.model.request.CastResponse
+import com.example.moviesdb.data.model.request.CreateSessionRequest
+import com.example.moviesdb.data.model.request.CreateSessionResponse
+import com.example.moviesdb.data.model.request.MovieResponse
 import com.example.moviesdb.data.model.request.MovieResponseByDiscover
 import com.example.moviesdb.data.model.request.MovieResponseByNowPlaying
 import com.example.moviesdb.data.model.request.MovieResponseByPopular
 import com.example.moviesdb.data.model.request.MovieResponseByTopRated
 import com.example.moviesdb.data.model.request.MovieResponseByUpcoming
+import com.example.moviesdb.data.model.request.RequestTokenResponse
+import com.example.moviesdb.data.model.request.ReviewResponse
+import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.POST
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface MovieApi {
@@ -49,9 +58,32 @@ interface MovieApi {
     @GET("search/movie")
     suspend fun searchMovies(
         @Query("query") query: String,
-        @Query("include_adult") includeAdult: Boolean,
-        @Query("language") language: String,
+        @Query("include_adult") includeAdult: Boolean = false,
+        @Query("language") language: String = "en-US",
         @Query("page") page: Int
-    ): MovieResponseByDiscover
+    ): MovieResponse
+
+    @GET("movie/{movie_id}/reviews")
+    suspend fun getReviews(
+        @Path("movie_id") movieID: Int,
+        @Query("language") language: String = "en-US",
+        @Query("page") page: Int
+    ): ReviewResponse
+
+    @GET("movie/{movie_id}/credits")
+    suspend fun getCast(
+        @Path("movie_id") movieID: Int,
+        @Query("language") language: String = "en-US",
+        @Query("page") page: Int
+    ): CastResponse
+
+    // Authentication
+    @GET("authentication/token/new")
+    suspend fun getRequestToken(): RequestTokenResponse
+
+    @POST("authentication/session/new")
+    suspend fun createSession(
+        @Body rawBody: CreateSessionRequest
+    ): CreateSessionResponse
 
 }

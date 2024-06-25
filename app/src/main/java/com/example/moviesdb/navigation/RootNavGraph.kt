@@ -7,11 +7,15 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.paging.ExperimentalPagingApi
+import com.example.moviesdb.SharedViewModel
 import com.example.moviesdb.screen.MainScreen
 
+@OptIn(ExperimentalPagingApi::class)
 @Composable
 fun RootNavigationGraph(
-    navHostController: NavHostController
+    navHostController: NavHostController,
+    sharedViewModel: SharedViewModel
 ) {
     val time = 500
     NavHost(
@@ -31,9 +35,9 @@ fun RootNavigationGraph(
             fullWidth
         }) }
     ) {
-        authNavGraph(navHostController)
+        authNavGraph(navHostController, sharedViewModel)
         composable(route = Graph.HOME) {
-            MainScreen()
+            MainScreen(sharedViewModel = sharedViewModel)
         }
     }
 }

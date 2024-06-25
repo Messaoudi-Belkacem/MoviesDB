@@ -7,39 +7,41 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import androidx.paging.ExperimentalPagingApi
+import com.example.moviesdb.SharedViewModel
 import com.example.moviesdb.screen.BookmarksScreen
-import com.example.moviesdb.screen.DetailsScreen
-import com.example.moviesdb.screen.SearchScreen
+import com.example.moviesdb.screen.details.DetailsScreen
+import com.example.moviesdb.screen.search.SearchScreen
 import com.example.moviesdb.screen.home.HomeScreen
 
 @OptIn(ExperimentalPagingApi::class)
 @Composable
-fun HomeNavGraph(navController: NavHostController) {
+fun HomeNavGraph(navController: NavHostController, sharedViewModel: SharedViewModel) {
     NavHost(
         navController = navController,
         route = Graph.HOME,
         startDestination = BottomBarScreen.Home.route
     ) {
         composable(route = BottomBarScreen.Home.route) {
-            HomeScreen()
+            HomeScreen(navController = navController, sharedViewModel = sharedViewModel)
         }
         composable(route = BottomBarScreen.Search.route) {
-            SearchScreen()
+            SearchScreen(navController = navController, sharedViewModel = sharedViewModel)
         }
         composable(route = BottomBarScreen.WatchList.route) {
             BookmarksScreen()
         }
-        detailsNavGraph(navController = navController)
+        detailsNavGraph(navController = navController, sharedViewModel = sharedViewModel)
     }
 }
 
-fun NavGraphBuilder.detailsNavGraph(navController: NavHostController) {
+@OptIn(ExperimentalPagingApi::class)
+fun NavGraphBuilder.detailsNavGraph(navController: NavHostController, sharedViewModel: SharedViewModel) {
     navigation(
         route = Graph.DETAILS,
         startDestination = Screen.Details.route
     ) {
         composable(route = Screen.Details.route) {
-            DetailsScreen()
+            DetailsScreen(navController = navController, sharedViewModel = sharedViewModel)
         }
     }
 }

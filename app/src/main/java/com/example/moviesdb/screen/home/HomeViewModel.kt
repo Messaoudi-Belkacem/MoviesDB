@@ -50,7 +50,7 @@ class HomeViewModel @Inject constructor(private val repository: Repository) : Vi
                     }
                     .collectLatest { pagingData ->
                         _movieByDiscoverFlow.value = pagingData
-                        Log.d(tag, "response was successful")
+                        Log.d(tag, "response was successful for movie by discover")
                     }
             } catch (e: ConnectException) {
                 Log.d(tag, "Failed to connect to the server. Please check your internet connection.")
@@ -70,7 +70,7 @@ class HomeViewModel @Inject constructor(private val repository: Repository) : Vi
                     }
                     .collectLatest { pagingData ->
                         _movieByNowPlayingFlow.value = pagingData
-                        Log.d(tag, "response was successful")
+                        Log.d(tag, "response was successful  for movie by now playing")
                     }
             } catch (e: ConnectException) {
                 Log.d(tag, "Failed to connect to the server. Please check your internet connection.")

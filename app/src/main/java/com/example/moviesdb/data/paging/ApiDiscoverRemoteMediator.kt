@@ -16,8 +16,8 @@ class ApiDiscoverRemoteMediator(
     private val movieDatabase: MovieDatabase
 ) : RemoteMediator<Int, MovieByDiscover>() {
 
-    private val apiMovieDao = movieDatabase.apiMovieByDiscoverDao()
-    private val apiRemoteKeysDao = movieDatabase.apiByDiscoverRemoteKeysDao()
+    private val apiMovieByDiscoverDao = movieDatabase.apiMovieByDiscoverDao()
+    private val apiByDiscoverRemoteKeysDao = movieDatabase.apiByDiscoverRemoteKeysDao()
 
     override suspend fun load(
         loadType: LoadType,
@@ -55,8 +55,8 @@ class ApiDiscoverRemoteMediator(
 
             movieDatabase.withTransaction {
                 if (loadType == LoadType.REFRESH) {
-                    apiMovieDao.deleteAllMovies()
-                    apiRemoteKeysDao.deleteAllRemoteKeys()
+                    apiMovieByDiscoverDao.deleteAllMovies()
+                    apiByDiscoverRemoteKeysDao.deleteAllRemoteKeys()
                 }
                 val keys = response.map { movie ->
                     ApiByDiscoverRemoteKeys(
@@ -65,8 +65,8 @@ class ApiDiscoverRemoteMediator(
                         nextPage = nextPage
                     )
                 }
-                apiRemoteKeysDao.addAllRemoteKeys(remoteKeys = keys)
-                apiMovieDao.addMovies(movies = response)
+                apiByDiscoverRemoteKeysDao.addAllRemoteKeys(remoteKeys = keys)
+                apiMovieByDiscoverDao.addMovies(movies = response)
             }
             MediatorResult.Success(endOfPaginationReached = endOfPaginationReached)
         } catch (e: Exception) {
@@ -78,8 +78,8 @@ class ApiDiscoverRemoteMediator(
         state: PagingState<Int, MovieByDiscover>
     ): ApiByDiscoverRemoteKeys? {
         return state.anchorPosition?.let { position ->
-            state.closestItemToPosition(position)?.id?.let { id ->
-                apiRemoteKeysDao.getRemoteKeys(id = id.toString())
+            state.closestItemToPosition(position)?.id?.let {
+                apiByDiscoverRemoteKeysDao.getRemoteKeys(id = it.toString())
             }
         }
     }
@@ -88,8 +88,8 @@ class ApiDiscoverRemoteMediator(
         state: PagingState<Int, MovieByDiscover>
     ): ApiByDiscoverRemoteKeys? {
         return state.pages.firstOrNull { it.data.isNotEmpty() }?.data?.firstOrNull()
-            ?.let { unsplashImage ->
-                apiRemoteKeysDao.getRemoteKeys(id = unsplashImage.id.toString())
+            ?.let {
+                apiByDiscoverRemoteKeysDao.getRemoteKeys(id = it.id.toString())
             }
     }
 
@@ -97,8 +97,8 @@ class ApiDiscoverRemoteMediator(
         state: PagingState<Int, MovieByDiscover>
     ): ApiByDiscoverRemoteKeys? {
         return state.pages.lastOrNull { it.data.isNotEmpty() }?.data?.lastOrNull()
-            ?.let { unsplashImage ->
-                apiRemoteKeysDao.getRemoteKeys(id = unsplashImage.id.toString())
+            ?.let {
+                apiByDiscoverRemoteKeysDao.getRemoteKeys(id = it.id.toString())
             }
     }
 }

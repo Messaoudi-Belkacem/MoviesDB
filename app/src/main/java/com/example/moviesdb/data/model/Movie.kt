@@ -13,12 +13,12 @@ data class Movie(
     val id: Int,
     val title: String,
     val overview: String,
-    val posterPath: String?,
-    val backdropPath: String?,
-    val releaseDate: String,
-    val genreIds: List<Int>,
-    val voteAverage: Double,
-    val voteCount: Int
+    @SerializedName("poster_path") val posterPath: String?,
+    @SerializedName("backdrop_path") val backdropPath: String?,
+    @SerializedName("release_date") val releaseDate: String,
+    @SerializedName("genre_ids") val genreIds: List<Int>,
+    @SerializedName("vote_average") val voteAverage: Double,
+    @SerializedName("vote_count") val voteCount: Int
 )
 
 @Entity(tableName = API_MOVIE_BY_DISCOVER_TABLE)

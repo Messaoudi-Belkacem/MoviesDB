@@ -2,6 +2,7 @@ package com.example.moviesdb.screen.home
 
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,20 +38,27 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.moviesdb.R
+import com.example.moviesdb.SharedViewModel
 import com.example.moviesdb.data.model.MovieByNowPlaying
 import com.example.moviesdb.data.model.MovieByPopular
 import com.example.moviesdb.data.model.MovieByTopRated
 import com.example.moviesdb.data.model.MovieByUpcoming
+import com.example.moviesdb.navigation.Graph
 import com.example.moviesdb.screen.common.MovieItem
 
 @OptIn(ExperimentalPagingApi::class)
 @Composable
-fun HomeScreen(homeViewModel: HomeViewModel = hiltViewModel()) {
+fun HomeScreen(
+    navController: NavHostController,
+    homeViewModel: HomeViewModel = hiltViewModel(),
+    sharedViewModel: SharedViewModel
+) {
 
     LaunchedEffect(Unit) {
         homeViewModel.getMoviesByDiscover()
@@ -60,9 +68,7 @@ fun HomeScreen(homeViewModel: HomeViewModel = hiltViewModel()) {
         homeViewModel.getMoviesByUpcoming()
     }
 
-    val modifierForRowItem = Modifier
-        .height(240.dp)
-        .width(160.dp)
+    val modifierForRowItem = true
 
     val discoveredMovies = homeViewModel.movieByDiscoverFlow.collectAsLazyPagingItems()
     val nowPlayingMovies = homeViewModel.movieByNowPlayingFlow.collectAsLazyPagingItems()
@@ -135,7 +141,12 @@ fun HomeScreen(homeViewModel: HomeViewModel = hiltViewModel()) {
                             val item = discoveredMovies[index]
                             if (item != null) {
                                 val movie = homeViewModel.convertMovieByDiscoverToMovie(item)
-                                MovieItem(movie = movie, modifier = modifierForRowItem)
+                                MovieItem(
+                                    movie = movie,
+                                    modifier = modifierForRowItem,
+                                    navController = navController,
+                                    sharedViewModel = sharedViewModel
+                                )
                             } else {
                                 Log.d("HomeScreen.kt", "item number $index is null")
                             }
@@ -168,7 +179,7 @@ fun HomeScreen(homeViewModel: HomeViewModel = hiltViewModel()) {
                             }
                             is LoadState.Error -> {
                                 Button(
-                                    onClick = { homeViewModel.getMoviesByDiscover() },
+                                    onClick = { homeViewModel.getMoviesByNowPlaying() },
                                     shape = RoundedCornerShape(8.dp)
                                 ) {
                                     Text(
@@ -195,7 +206,9 @@ fun HomeScreen(homeViewModel: HomeViewModel = hiltViewModel()) {
                                     topRatedLazyPagingItems = null,
                                     upcomingLazyPagingItems = null,
                                     homeViewModel = homeViewModel,
-                                    tabIndex = tabIndex
+                                    tabIndex = tabIndex,
+                                    navController = navController,
+                                    sharedViewModel = sharedViewModel
                                 )
                             }
                         }
@@ -234,7 +247,9 @@ fun HomeScreen(homeViewModel: HomeViewModel = hiltViewModel()) {
                                     topRatedLazyPagingItems = null,
                                     upcomingLazyPagingItems = null,
                                     homeViewModel = homeViewModel,
-                                    tabIndex = tabIndex
+                                    tabIndex = tabIndex,
+                                    navController = navController,
+                                    sharedViewModel = sharedViewModel
                                 )
                             }
                         }
@@ -273,7 +288,9 @@ fun HomeScreen(homeViewModel: HomeViewModel = hiltViewModel()) {
                                     topRatedLazyPagingItems = topRatedMovies,
                                     upcomingLazyPagingItems = null,
                                     homeViewModel = homeViewModel,
-                                    tabIndex = tabIndex
+                                    tabIndex = tabIndex,
+                                    navController = navController,
+                                    sharedViewModel = sharedViewModel
                                 )
                             }
                         }
@@ -312,7 +329,9 @@ fun HomeScreen(homeViewModel: HomeViewModel = hiltViewModel()) {
                                     topRatedLazyPagingItems = null,
                                     upcomingLazyPagingItems = upcomingMovies,
                                     homeViewModel = homeViewModel,
-                                    tabIndex = tabIndex
+                                    tabIndex = tabIndex,
+                                    navController = navController,
+                                    sharedViewModel = sharedViewModel
                                 )
                             }
                         }
@@ -331,7 +350,9 @@ fun TabContent(
     topRatedLazyPagingItems: LazyPagingItems<MovieByTopRated>?,
     upcomingLazyPagingItems: LazyPagingItems<MovieByUpcoming>?,
     homeViewModel: HomeViewModel,
-    tabIndex: Int
+    tabIndex: Int,
+    navController: NavHostController,
+    sharedViewModel: SharedViewModel
 ) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(count = 3),
@@ -348,7 +369,12 @@ fun TabContent(
                     val item = nowPlayingLazyPagingItems[index]
                     if (item != null) {
                         val movie = homeViewModel.convertMovieByNowPlayingToMovie(item)
-                        MovieItem(movie = movie, modifier = null)
+                        MovieItem(
+                            movie = movie,
+                            modifier = null,
+                            navController = navController,
+                            sharedViewModel = sharedViewModel
+                            )
                     } else {
                         Log.d("HomeScreen.kt", "item number $index is null")
                     }
@@ -359,7 +385,12 @@ fun TabContent(
                     val item = popularLazyPagingItems[index]
                     if (item != null) {
                         val movie = homeViewModel.convertMovieByPopularToMovie(item)
-                        MovieItem(movie = movie, modifier = null)
+                        MovieItem(
+                            movie = movie,
+                            modifier = null,
+                            navController = navController,
+                            sharedViewModel = sharedViewModel
+                        )
                     } else {
                         Log.d("HomeScreen.kt", "item number $index is null")
                     }
@@ -370,7 +401,12 @@ fun TabContent(
                     val item = topRatedLazyPagingItems[index]
                     if (item != null) {
                         val movie = homeViewModel.convertMovieByTopRatedToMovie(item)
-                        MovieItem(movie = movie, modifier = null)
+                        MovieItem(
+                            movie = movie,
+                            modifier = null,
+                            navController = navController,
+                            sharedViewModel = sharedViewModel
+                            )
                     } else {
                         Log.d("HomeScreen.kt", "item number $index is null")
                     }
@@ -381,7 +417,12 @@ fun TabContent(
                     val item = upcomingLazyPagingItems[index]
                     if (item != null) {
                         val movie = homeViewModel.convertMovieByUpcomingToMovie(item)
-                        MovieItem(movie = movie, modifier = null)
+                        MovieItem(
+                            movie = movie,
+                            modifier = null,
+                            navController = navController,
+                            sharedViewModel = sharedViewModel
+                        )
                     } else {
                         Log.d("HomeScreen.kt", "item number $index is null")
                     }
@@ -395,7 +436,7 @@ fun TabContent(
 @Composable
 fun LoadingCircle() {
     Box(
-        modifier = Modifier.height(240.dp),
+        modifier = Modifier.height(256.dp),
         contentAlignment = Alignment.Center
     ) {
         CircularProgressIndicator(

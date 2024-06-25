@@ -1,8 +1,10 @@
-package com.example.darckoum.data.state
+package com.example.moviesdb.data.state
 
 sealed class LoginState {
     object Initial : LoginState()
     object Loading : LoginState()
-    object Success : LoginState()
+    object CreateRequestTokenSuccess : LoginState()
+    object AuthenticationSuccess : LoginState()
+    object CreateSessionIDSuccess : LoginState()
     data class Error(val message: String) : LoginState()
 }

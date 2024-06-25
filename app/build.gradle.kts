@@ -66,6 +66,7 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.constraintlayout)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -110,6 +111,12 @@ dependencies {
 
     // KotlinX Serialization
     implementation (libs.kotlinx.serialization.json)
+
+    // Constraint Layout
+    implementation (libs.androidx.constraintlayout.compose)
+
+    // Lottie animations
+    implementation(libs.lottie.compose)
 }
 
 kapt {

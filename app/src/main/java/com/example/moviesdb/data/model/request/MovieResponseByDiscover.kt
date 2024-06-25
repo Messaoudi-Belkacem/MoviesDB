@@ -1,10 +1,15 @@
 package com.example.moviesdb.data.model.request
 
+import com.example.moviesdb.data.model.Movie
 import com.example.moviesdb.data.model.MovieByDiscover
 import com.example.moviesdb.data.model.MovieByNowPlaying
 import com.example.moviesdb.data.model.MovieByPopular
 import com.example.moviesdb.data.model.MovieByTopRated
 import com.example.moviesdb.data.model.MovieByUpcoming
+
+data class MovieResponse(
+    val results: List<Movie>
+)
 
 data class MovieResponseByDiscover(
     val results: List<MovieByDiscover>
