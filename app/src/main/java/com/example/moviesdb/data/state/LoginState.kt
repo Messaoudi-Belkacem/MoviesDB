@@ -6,5 +6,6 @@ sealed class LoginState {
     object CreateRequestTokenSuccess : LoginState()
     object AuthenticationSuccess : LoginState()
     object CreateSessionIDSuccess : LoginState()
+    object Success : LoginState()
     data class Error(val message: String) : LoginState()
 }

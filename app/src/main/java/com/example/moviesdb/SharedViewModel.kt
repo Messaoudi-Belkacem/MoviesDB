@@ -4,13 +4,17 @@ import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import androidx.paging.ExperimentalPagingApi
 import com.example.moviesdb.data.model.Movie
 import com.example.moviesdb.data.repository.Repository
+import com.example.moviesdb.navigation.Graph
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.time.delay
+import java.time.Duration
 import javax.inject.Inject
 
 @ExperimentalPagingApi
@@ -21,6 +25,12 @@ class SharedViewModel @Inject constructor(private val repository: Repository) : 
 
     private val _selectedMovie: MutableState<Movie?> = mutableStateOf(null)
     val selectedMovie: MutableState<Movie?> = _selectedMovie
+
+    private val _condition = MutableStateFlow(true)
+    val condition: MutableStateFlow<Boolean> = _condition
+
+    private val _startDestination = mutableStateOf(Graph.AUTHENTICATION)
+    val startDestination: MutableState<String> = _startDestination
 
     fun setSelectedMovie(movie: Movie) {
         _selectedMovie.value = movie
@@ -45,6 +55,21 @@ class SharedViewModel @Inject constructor(private val repository: Repository) : 
         Log.d(tag, approved.toString())
     }
 
-
-
+    init {
+        Log.d(tag, "init block started executing")
+        // Because getSessionID is a suspend function
+        viewModelScope.launch {
+            val sessionID = repository.getSessionID()
+            Log.d(tag, "getSessionID executed successfully and sessionID is :$sessionID")
+            if (sessionID != null) {
+                _startDestination.value = Graph.HOME
+                Log.d(tag, "condition value is set to false and start destination is set to GraphHOME")
+            } else {
+                _startDestination.value = Graph.AUTHENTICATION
+                Log.d(tag, "condition value is set to false and start destination is set to AUTHENTICATION")
+            }
+            delay(duration = Duration.ofMillis(1000))
+            _condition.value = false
+        }
+    }
 }

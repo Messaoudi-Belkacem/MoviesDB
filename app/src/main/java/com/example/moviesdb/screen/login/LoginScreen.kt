@@ -52,7 +52,7 @@ fun LoginScreen(
     LaunchedEffect(Unit) {
         if (sharedViewModel.requestToken.value.isNotEmpty()) {
             loginViewModel.setLoginState(LoginState.AuthenticationSuccess)
-        } else Log.d(tag, "create session request token is empty")
+        } else Log.d(tag, "create session request token is empty because the authentication failed or app had a clean restart")
     }
     Column(
         modifier = Modifier
@@ -143,6 +143,9 @@ fun LoginScreen(
                     )
                 }
                 is LoginState.CreateSessionIDSuccess -> {
+                    loginViewModel.saveSessionID(loginViewModel.getSessionID())
+                }
+                is LoginState.Success -> {
                     navController.popBackStack()
                     navController.navigate(Graph.HOME)
                 }

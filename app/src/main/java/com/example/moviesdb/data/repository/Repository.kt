@@ -1,5 +1,13 @@
 package com.example.moviesdb.data.repository
 
+import android.content.Context
+import android.util.Log
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
@@ -28,14 +36,33 @@ import com.example.moviesdb.data.remote.MovieApi
 import com.example.moviesdb.util.Constants.Companion.ITEMS_PER_PAGE
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @ExperimentalPagingApi
 class Repository @Inject constructor(
     private val movieApi: MovieApi,
-    private val movieDatabase: MovieDatabase
+    private val movieDatabase: MovieDatabase,
+    private val dataStore: DataStore<Preferences>
 ) {
+
+    private val tag = "repository"
+    private val sessionIDKey = stringPreferencesKey("session_id")
+
+    suspend fun getSessionID(): String? {
+        Log.d(tag, "getSessionID is called")
+        val sessionIdFlow = dataStore.data.first()
+        return sessionIdFlow[sessionIDKey]
+    }
+
+    suspend fun saveSessionID(sessionID: String) {
+        dataStore.edit { preferences ->
+            preferences[this.sessionIDKey] = sessionID
+        }
+    }
 
     fun getAllMoviesByDiscover(): Flow<PagingData<MovieByDiscover>> {
         val pagingSourceFactory = { movieDatabase.apiMovieByDiscoverDao().getAllMovies() }
@@ -145,5 +172,7 @@ class Repository @Inject constructor(
             }
         }
     }
+
+
 
 }

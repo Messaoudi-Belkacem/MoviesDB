@@ -4,6 +4,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -15,13 +16,14 @@ import com.example.moviesdb.screen.MainScreen
 @Composable
 fun RootNavigationGraph(
     navHostController: NavHostController,
-    sharedViewModel: SharedViewModel
+    sharedViewModel: SharedViewModel,
+    startDestination: String
 ) {
     val time = 500
     NavHost(
         navController = navHostController,
         route = Graph.ROOT,
-        startDestination = Graph.AUTHENTICATION,
+        startDestination = startDestination,
         enterTransition = { slideInHorizontally(animationSpec = tween(time), initialOffsetX = {fullWidth ->  
             -fullWidth
         }) },

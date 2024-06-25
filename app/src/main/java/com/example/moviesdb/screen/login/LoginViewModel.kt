@@ -29,6 +29,9 @@ class LoginViewModel @Inject constructor(private val repository: Repository) : V
     private val _requestToken = MutableStateFlow("")
     val requestToken: StateFlow<String> get() = _requestToken
 
+    private val _sessionID = MutableStateFlow("")
+    val sessionID: StateFlow<String> get() = _sessionID
+
     private val _loginState = mutableStateOf<LoginState>(LoginState.Initial)
     val loginState: State<LoginState> = _loginState
 
@@ -67,19 +70,47 @@ class LoginViewModel @Inject constructor(private val repository: Repository) : V
             val sessionResponse = repository.createSession(createSessionRequest)
             if (sessionResponse.isSuccess) {
                 // Handle successful session creation
-                _loginState.value = LoginState.CreateSessionIDSuccess
+                val createSessionResponse = sessionResponse.getOrNull()
+                if (createSessionResponse != null) {
+                    setSessionID(sessionID = createSessionResponse.sessionID)
+                    Log.d(tag, "createSessionId was successful and response is: $createSessionResponse")
+                    _loginState.value = LoginState.CreateSessionIDSuccess
+                } else {
+                    Log.e("API_ERROR", "Session creation failed")
+                    _loginState.value = LoginState.Error("Session creation failed")
+                }
                 Log.e(tag, sessionResponse.toString())
             } else {
                 Log.e("API_ERROR", "Session creation failed")
+                _loginState.value = LoginState.Error("Session creation failed")
             }
         }
     }
 
-    fun setRequestToken(requestToken: String) {
+    private fun setRequestToken(requestToken: String) {
         _requestToken.value = requestToken
+    }
+
+    private fun setSessionID(sessionID: String) {
+        _sessionID.value = sessionID
+        Log.d(tag, "sessionID has been set in the login viewmodel")
+    }
+
+    fun getSessionID(): String{
+        Log.d(tag, "sessionID has been red to the data store")
+        return  _sessionID.value
     }
 
     fun setLoginState(loginState: LoginState) {
         _loginState.value = loginState
+    }
+
+    fun saveSessionID(sessionID: String) {
+        viewModelScope.launch {
+            _loginState.value = LoginState.Loading
+            repository.saveSessionID(sessionID = sessionID)
+            _loginState.value = LoginState.Success
+            Log.d(tag, "sessionID has been saved to the data store")
+        }
     }
 }

@@ -117,6 +117,9 @@ dependencies {
 
     // Lottie animations
     implementation(libs.lottie.compose)
+
+    // DataStore
+    implementation(libs.androidx.datastore.preferences)
 }
 
 kapt {
