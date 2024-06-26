@@ -1,5 +1,6 @@
 package com.example.moviesdb.screen.login
 
+import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -17,7 +18,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -35,7 +35,6 @@ import com.example.moviesdb.data.state.LoginState
 import com.example.moviesdb.navigation.AuthenticationScreen
 import com.example.moviesdb.navigation.Graph
 import com.example.moviesdb.screen.common.AnimatedPreloader
-import com.example.moviesdb.screen.common.SimpleOutlinedTextFieldSample
 
 @OptIn(ExperimentalPagingApi::class)
 @Composable
@@ -45,124 +44,133 @@ fun LoginScreen(
     sharedViewModel: SharedViewModel
 ) {
     val tag = "LoginScreen.kt"
-    /*var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }*/
     val loginState by loginViewModel.loginState
     val context = LocalContext.current
+
     LaunchedEffect(Unit) {
         if (sharedViewModel.requestToken.value.isNotEmpty()) {
             loginViewModel.setLoginState(LoginState.AuthenticationSuccess)
-        } else Log.d(tag, "create session request token is empty because the authentication failed or app had a clean restart")
+        } else {
+            Log.d(tag, "create session request token is empty because the authentication failed or app had a clean restart")
+        }
     }
+
     Column(
-        modifier = Modifier
-            .fillMaxSize(1f),
+        modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceEvenly
     ) {
-        Column(
-            modifier = Modifier,
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(26.dp)
-        ) {
-            Text(
-                text = "Login Here",
-                fontSize = 30.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = "Welcome back we’ve,\n" +
-                        "missed you!",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.SemiBold,
-                textAlign = TextAlign.Center
+        HeaderSection()
+        ContentSection(loginState, navController, loginViewModel, sharedViewModel, context)
+    }
+}
+
+@Composable
+fun HeaderSection() {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(26.dp)
+    ) {
+        Text(
+            text = "Login Here",
+            fontSize = 30.sp,
+            fontWeight = FontWeight.Bold
+        )
+        Text(
+            text = "Welcome back we’ve,\nmissed you!",
+            fontSize = 20.sp,
+            fontWeight = FontWeight.SemiBold,
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+@OptIn(ExperimentalPagingApi::class)
+@Composable
+fun ContentSection(
+    loginState: LoginState,
+    navController: NavHostController,
+    loginViewModel: LoginViewModel,
+    sharedViewModel: SharedViewModel,
+    context: Context
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(30.dp)
+    ) {
+        ForgotPasswordText()
+        LoginStateContent(loginState, navController, loginViewModel, sharedViewModel, context)
+        CreateAccountText(navController)
+    }
+}
+
+@Composable
+fun ForgotPasswordText() {
+    Text(
+        modifier = Modifier.clickable { /*navController.navigate(AuthenticationScreen.Forgot.route)*/ },
+        text = "Forgot your password?",
+        fontWeight = FontWeight.SemiBold,
+        fontSize = MaterialTheme.typography.labelMedium.fontSize,
+        textAlign = TextAlign.Center
+    )
+}
+
+@Composable
+fun CreateAccountText(navController: NavHostController) {
+    Text(
+        modifier = Modifier.clickable { /*navController.navigate(AuthenticationScreen.SignUp.route)*/ },
+        text = "Create new account",
+        fontWeight = FontWeight.SemiBold,
+        fontSize = MaterialTheme.typography.labelLarge.fontSize,
+        textAlign = TextAlign.Center
+    )
+}
+
+@OptIn(ExperimentalPagingApi::class)
+@Composable
+fun LoginStateContent(
+    loginState: LoginState,
+    navController: NavHostController,
+    loginViewModel: LoginViewModel,
+    sharedViewModel: SharedViewModel,
+    context: Context
+) {
+    when (loginState) {
+        is LoginState.Initial -> {
+            LoginScreenMainButton(
+                text = "Create Request Token",
+                onClick = { loginViewModel.getRequestToken() }
             )
         }
-        Column(
-            modifier = Modifier,
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(30.dp)
-        ) {
-            /*Column(
-                modifier = Modifier,
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(30.dp)
-            ) {
-                SimpleOutlinedTextFieldSample(
-                    label = "Email",
-                    modifier = Modifier
-                        .width(357.dp),
-                    onTextChanged = { enteredText ->
-                        email = enteredText
-                    })
-                SimpleOutlinedTextFieldSample(
-                    label = "Password",
-                    modifier = Modifier
-                        .width(357.dp),
-                    onTextChanged = { enteredText ->
-                        password = enteredText
-                    })
-            }*/
-            Text(
-                modifier = Modifier
-                    .clickable {
-                        /*navController.navigate(AuthenticationScreen.Forgot.route)*/
-                    }
-                    .align(Alignment.CenterHorizontally),
-                text = "Forgot your password?",
-                fontWeight = FontWeight.SemiBold,
-                fontSize = MaterialTheme.typography.labelMedium.fontSize,
+        is LoginState.CreateRequestTokenSuccess -> {
+            LoginScreenMainButton(
+                text = "Authenticate",
+                onClick = { loginViewModel.askForUserPermission(context) }
             )
-            when (loginState) {
-                is LoginState.Initial -> {
-                    LoginScreenMainButton(
-                        text = "Create Request Token",
-                        onClick = {
-                            loginViewModel.getRequestToken()
-                        }
+        }
+        is LoginState.AuthenticationSuccess -> {
+            LoginScreenMainButton(
+                text = "Create a session",
+                onClick = {
+                    loginViewModel.createSessionId(
+                        requestToken = sharedViewModel.requestToken.value,
+                        approved = sharedViewModel.approved.value
                     )
                 }
-                is LoginState.CreateRequestTokenSuccess -> {
-                    LoginScreenMainButton(
-                        text = "Authenticate",
-                        onClick = {
-                            loginViewModel.askForUserPermission(context = context)
-                        }
-                    )
-                }
-
-                is LoginState.AuthenticationSuccess -> {
-                    LoginScreenMainButton(
-                        text = "Create a session",
-                        onClick = {
-                            loginViewModel.createSessionId(
-                                requestToken = sharedViewModel.requestToken.value,
-                                approved = sharedViewModel.approved.value
-                            )
-                        }
-                    )
-                }
-                is LoginState.CreateSessionIDSuccess -> {
-                    loginViewModel.saveSessionID(loginViewModel.getSessionID())
-                }
-                is LoginState.Success -> {
-                    navController.popBackStack()
-                    navController.navigate(Graph.HOME)
-                }
-                is LoginState.Error -> TODO()
-                is LoginState.Loading -> {
-                    AnimatedPreloader(modifier = Modifier.size(300.dp))
-                }
-            }
-            Text(
-                text = "Create new account",
-                fontWeight = FontWeight.SemiBold,
-                fontSize = MaterialTheme.typography.labelLarge.fontSize,
-                modifier = Modifier
-                    .clickable {
-                        /*navController.navigate(AuthenticationScreen.SignUp.route)*/
-                    }
             )
+        }
+        is LoginState.CreateSessionIDSuccess -> {
+            loginViewModel.saveSessionID(loginViewModel.getSessionID())
+        }
+        is LoginState.Success -> {
+            navController.popBackStack()
+            navController.navigate(Graph.HOME)
+        }
+        is LoginState.Error -> {
+            // Handle error state
+        }
+        is LoginState.Loading -> {
+            AnimatedPreloader(modifier = Modifier.size(300.dp))
         }
     }
 }
@@ -174,8 +182,7 @@ fun LoginScreenMainButton(text: String, onClick: () -> Unit) {
         shape = RoundedCornerShape(10.dp),
         contentPadding = PaddingValues(vertical = 16.dp),
         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-        modifier = Modifier
-            .fillMaxWidth(0.85f)
+        modifier = Modifier.fillMaxWidth(0.85f)
     ) {
         Text(
             text = text,
