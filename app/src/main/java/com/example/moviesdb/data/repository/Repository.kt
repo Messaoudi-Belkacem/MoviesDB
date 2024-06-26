@@ -21,6 +21,7 @@ import com.example.moviesdb.data.model.MovieByPopular
 import com.example.moviesdb.data.model.MovieByTopRated
 import com.example.moviesdb.data.model.MovieByUpcoming
 import com.example.moviesdb.data.model.Review
+import com.example.moviesdb.data.model.User
 import com.example.moviesdb.data.model.request.CreateSessionRequest
 import com.example.moviesdb.data.model.request.CreateSessionResponse
 import com.example.moviesdb.data.model.request.RequestTokenResponse
@@ -32,6 +33,7 @@ import com.example.moviesdb.data.paging.ApiUpcomingRemoteMediator
 import com.example.moviesdb.data.paging.CastPagingSource
 import com.example.moviesdb.data.paging.ReviewsPagingSource
 import com.example.moviesdb.data.paging.SearchPagingSource
+import com.example.moviesdb.data.paging.WatchlistPagingSource
 import com.example.moviesdb.data.remote.MovieApi
 import com.example.moviesdb.util.Constants.Companion.ITEMS_PER_PAGE
 import kotlinx.coroutines.Dispatchers
@@ -173,6 +175,23 @@ class Repository @Inject constructor(
         }
     }
 
+    suspend fun getAccountDetails(sessionID: String): Result<User> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = movieApi.getAccountDetails(sessionID = sessionID)
+                Result.success(response)
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
 
-
+    fun getWatchListMovies(sessionID: String, accountID: Int): Flow<PagingData<Movie>> {
+        return Pager(
+                config = PagingConfig(pageSize = ITEMS_PER_PAGE),
+        pagingSourceFactory = {
+            WatchlistPagingSource(movieApi = movieApi, sessionID = sessionID, accountID = accountID)
+        }
+        ).flow
+    }
 }

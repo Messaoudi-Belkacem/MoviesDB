@@ -8,7 +8,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import androidx.paging.ExperimentalPagingApi
 import com.example.moviesdb.SharedViewModel
-import com.example.moviesdb.screen.BookmarksScreen
+import com.example.moviesdb.screen.watchlist.BookmarksScreen
 import com.example.moviesdb.screen.details.DetailsScreen
 import com.example.moviesdb.screen.search.SearchScreen
 import com.example.moviesdb.screen.home.HomeScreen
@@ -28,7 +28,7 @@ fun HomeNavGraph(navController: NavHostController, sharedViewModel: SharedViewMo
             SearchScreen(navController = navController, sharedViewModel = sharedViewModel)
         }
         composable(route = BottomBarScreen.WatchList.route) {
-            BookmarksScreen()
+            BookmarksScreen(navController = navController, sharedViewModel = sharedViewModel)
         }
         detailsNavGraph(navController = navController, sharedViewModel = sharedViewModel)
     }

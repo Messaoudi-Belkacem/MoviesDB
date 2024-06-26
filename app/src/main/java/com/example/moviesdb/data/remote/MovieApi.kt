@@ -1,5 +1,6 @@
 package com.example.moviesdb.data.remote
 
+import com.example.moviesdb.data.model.User
 import com.example.moviesdb.data.model.request.CastResponse
 import com.example.moviesdb.data.model.request.CreateSessionRequest
 import com.example.moviesdb.data.model.request.CreateSessionResponse
@@ -85,5 +86,19 @@ interface MovieApi {
     suspend fun createSession(
         @Body rawBody: CreateSessionRequest
     ): CreateSessionResponse
+
+    @GET("account")
+    suspend fun getAccountDetails(
+        @Query("session_id") sessionID: String,
+    ): User
+
+    @GET("account/{account_id}/watchlist/movies")
+    suspend fun getWatchListMovies(
+        @Path("account_id") accountID: Int,
+        @Query("session_id") sessionID: String,
+        @Query("language") language: String = "en-US",
+        @Query("page") page: Int,
+        @Query("sort_by") sortBy: String = "created_at.asc",
+    ): MovieResponse
 
 }

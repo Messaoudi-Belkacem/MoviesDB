@@ -160,9 +160,13 @@ fun LoginStateContent(
             )
         }
         is LoginState.CreateSessionIDSuccess -> {
+            AnimatedPreloader(modifier = Modifier.size(300.dp))
             loginViewModel.saveSessionID(loginViewModel.getSessionID())
+            sharedViewModel.getUser(loginViewModel.getSessionID())
+
         }
         is LoginState.Success -> {
+            AnimatedPreloader(modifier = Modifier.size(300.dp))
             navController.popBackStack()
             navController.navigate(Graph.HOME)
         }
