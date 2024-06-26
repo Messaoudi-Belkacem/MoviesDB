@@ -4,6 +4,7 @@ import com.example.moviesdb.data.model.User
 import com.example.moviesdb.data.model.request.CastResponse
 import com.example.moviesdb.data.model.request.CreateSessionRequest
 import com.example.moviesdb.data.model.request.CreateSessionResponse
+import com.example.moviesdb.data.model.request.DeleteSessionRequest
 import com.example.moviesdb.data.model.request.MovieResponse
 import com.example.moviesdb.data.model.request.MovieResponseByDiscover
 import com.example.moviesdb.data.model.request.MovieResponseByNowPlaying
@@ -12,7 +13,9 @@ import com.example.moviesdb.data.model.request.MovieResponseByTopRated
 import com.example.moviesdb.data.model.request.MovieResponseByUpcoming
 import com.example.moviesdb.data.model.request.RequestTokenResponse
 import com.example.moviesdb.data.model.request.ReviewResponse
+import com.example.moviesdb.data.model.response.DeleteSessionResponse
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
@@ -86,6 +89,11 @@ interface MovieApi {
     suspend fun createSession(
         @Body rawBody: CreateSessionRequest
     ): CreateSessionResponse
+
+    @DELETE("authentication/session")
+    suspend fun deleteSession(
+        @Body rawBody: DeleteSessionRequest
+    ): DeleteSessionResponse
 
     @GET("account")
     suspend fun getAccountDetails(
