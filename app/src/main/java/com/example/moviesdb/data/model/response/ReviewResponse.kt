@@ -1,6 +1,5 @@
-package com.example.moviesdb.data.model.request
+package com.example.moviesdb.data.model.response
 
-import com.example.moviesdb.data.model.MovieByUpcoming
 import com.example.moviesdb.data.model.Review
 
 data class ReviewResponse(

@@ -227,8 +227,9 @@ fun DetailsScreen(
                                 0 -> {
                                     Text(
                                         text = movie.overview,
-                                        modifier = Modifier.padding(4.dp),
-                                        fontSize = MaterialTheme.typography.bodySmall.fontSize
+                                        modifier = Modifier.padding(8.dp),
+                                        fontSize = MaterialTheme.typography.bodySmall.fontSize,
+                                        textAlign = TextAlign.Center
                                     )
                                 }
                                 1 -> {

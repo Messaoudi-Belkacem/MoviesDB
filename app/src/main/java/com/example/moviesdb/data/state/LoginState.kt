@@ -5,7 +5,11 @@ sealed class LoginState {
     object Loading : LoginState()
     object CreateRequestTokenSuccess : LoginState()
     object AuthenticationSuccess : LoginState()
-    object CreateSessionIDSuccess : LoginState()
-    object Success : LoginState()
     data class Error(val message: String) : LoginState()
+}
+
+sealed class LoginSubState {
+    object Initial : LoginSubState()
+    object CreateRequestTokenSuccess : LoginSubState()
+    data class Error(val message: String) : LoginSubState()
 }

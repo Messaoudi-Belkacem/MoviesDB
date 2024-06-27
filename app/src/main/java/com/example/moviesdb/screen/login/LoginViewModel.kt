@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
-import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -13,6 +12,7 @@ import androidx.paging.ExperimentalPagingApi
 import com.example.moviesdb.data.model.request.CreateSessionRequest
 import com.example.moviesdb.data.repository.Repository
 import com.example.moviesdb.data.state.LoginState
+import com.example.moviesdb.data.state.LoginSubState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -34,6 +34,9 @@ class LoginViewModel @Inject constructor(private val repository: Repository) : V
 
     private val _loginState = mutableStateOf<LoginState>(LoginState.Initial)
     val loginState: State<LoginState> = _loginState
+
+    private val _loginSubState = mutableStateOf<LoginSubState>(LoginSubState.Initial)
+    val loginSubState: State<LoginSubState> = _loginSubState
 
     fun getRequestToken() {
         viewModelScope.launch {
@@ -62,7 +65,7 @@ class LoginViewModel @Inject constructor(private val repository: Repository) : V
         }
     }
 
-    fun createSessionId(requestToken: String, approved: Boolean) {
+    suspend fun createSessionId(requestToken: String, approved: Boolean) {
         // Coroutine scope to call the API
         viewModelScope.launch {
             _loginState.value = LoginState.Loading
@@ -74,7 +77,7 @@ class LoginViewModel @Inject constructor(private val repository: Repository) : V
                 if (createSessionResponse != null) {
                     setSessionID(sessionID = createSessionResponse.sessionID)
                     Log.d(tag, "createSessionId was successful and response is: $createSessionResponse")
-                    _loginState.value = LoginState.CreateSessionIDSuccess
+                    _loginSubState.value = LoginSubState.CreateRequestTokenSuccess
                 } else {
                     Log.e("API_ERROR", "Session creation failed")
                     _loginState.value = LoginState.Error("Session creation failed")
@@ -93,24 +96,30 @@ class LoginViewModel @Inject constructor(private val repository: Repository) : V
 
     private fun setSessionID(sessionID: String) {
         _sessionID.value = sessionID
-        Log.d(tag, "sessionID has been set in the login viewmodel")
+        Log.d(tag, "sessionID has been set in the login viewmodel : $sessionID")
     }
 
     fun getSessionID(): String{
-        Log.d(tag, "sessionID has been red to the data store")
         return  _sessionID.value
     }
 
     fun setLoginState(loginState: LoginState) {
-        _loginState.value = loginState
+        viewModelScope.launch {
+            _loginState.value = loginState
+        }
     }
 
-    fun saveSessionID(sessionID: String) {
+    fun setLoginSubState(loginSubState: LoginSubState) {
+        viewModelScope.launch {
+            _loginSubState.value = loginSubState
+        }
+    }
+
+    fun saveSessionIDToDatastore(sessionID: String) {
         viewModelScope.launch {
             _loginState.value = LoginState.Loading
-            repository.saveSessionID(sessionID = sessionID)
-            _loginState.value = LoginState.Success
-            Log.d(tag, "sessionID has been saved to the data store")
+            repository.saveSessionIDToDatastore(sessionID = sessionID)
+            Log.d(tag, "sessionID has been saved to the data store : $sessionID")
         }
     }
 }

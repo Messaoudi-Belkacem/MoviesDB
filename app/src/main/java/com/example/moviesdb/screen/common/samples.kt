@@ -367,7 +367,7 @@ fun SearchListContent(
 fun AnimatedPreloader(modifier: Modifier = Modifier) {
     val preloaderLottieComposition by rememberLottieComposition(
         LottieCompositionSpec.RawRes(
-            R.raw.popcorn_lottie_animation
+            R.raw.movies_lottie_animation
         )
     )
 

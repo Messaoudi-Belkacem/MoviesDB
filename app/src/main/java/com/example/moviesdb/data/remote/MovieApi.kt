@@ -1,18 +1,17 @@
 package com.example.moviesdb.data.remote
 
 import com.example.moviesdb.data.model.User
-import com.example.moviesdb.data.model.request.CastResponse
+import com.example.moviesdb.data.model.response.CastResponse
 import com.example.moviesdb.data.model.request.CreateSessionRequest
-import com.example.moviesdb.data.model.request.CreateSessionResponse
-import com.example.moviesdb.data.model.request.DeleteSessionRequest
-import com.example.moviesdb.data.model.request.MovieResponse
-import com.example.moviesdb.data.model.request.MovieResponseByDiscover
-import com.example.moviesdb.data.model.request.MovieResponseByNowPlaying
-import com.example.moviesdb.data.model.request.MovieResponseByPopular
-import com.example.moviesdb.data.model.request.MovieResponseByTopRated
-import com.example.moviesdb.data.model.request.MovieResponseByUpcoming
-import com.example.moviesdb.data.model.request.RequestTokenResponse
-import com.example.moviesdb.data.model.request.ReviewResponse
+import com.example.moviesdb.data.model.response.CreateSessionResponse
+import com.example.moviesdb.data.model.response.MovieResponse
+import com.example.moviesdb.data.model.response.MovieResponseByDiscover
+import com.example.moviesdb.data.model.response.MovieResponseByNowPlaying
+import com.example.moviesdb.data.model.response.MovieResponseByPopular
+import com.example.moviesdb.data.model.response.MovieResponseByTopRated
+import com.example.moviesdb.data.model.response.MovieResponseByUpcoming
+import com.example.moviesdb.data.model.response.RequestTokenResponse
+import com.example.moviesdb.data.model.response.ReviewResponse
 import com.example.moviesdb.data.model.response.DeleteSessionResponse
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -92,11 +91,12 @@ interface MovieApi {
 
     @DELETE("authentication/session")
     suspend fun deleteSession(
-        @Body rawBody: DeleteSessionRequest
+        @Query("session_id") sessionID: String
     ): DeleteSessionResponse
 
-    @GET("account")
+    @GET("account/{account_id}")
     suspend fun getAccountDetails(
+        @Path("account_id") accountID: Int = 20139247,
         @Query("session_id") sessionID: String,
     ): User
 

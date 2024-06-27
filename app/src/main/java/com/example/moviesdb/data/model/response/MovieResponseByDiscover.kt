@@ -1,4 +1,4 @@
-package com.example.moviesdb.data.model.request
+package com.example.moviesdb.data.model.response
 
 import com.example.moviesdb.data.model.Movie
 import com.example.moviesdb.data.model.MovieByDiscover

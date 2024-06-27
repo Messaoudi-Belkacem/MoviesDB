@@ -1,9 +1,6 @@
 package com.example.moviesdb.data.repository
 
-import android.content.Context
 import android.util.Log
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
@@ -23,8 +20,10 @@ import com.example.moviesdb.data.model.MovieByUpcoming
 import com.example.moviesdb.data.model.Review
 import com.example.moviesdb.data.model.User
 import com.example.moviesdb.data.model.request.CreateSessionRequest
-import com.example.moviesdb.data.model.request.CreateSessionResponse
-import com.example.moviesdb.data.model.request.RequestTokenResponse
+import com.example.moviesdb.data.model.response.CreateSessionResponse
+import com.example.moviesdb.data.model.request.DeleteSessionRequest
+import com.example.moviesdb.data.model.response.RequestTokenResponse
+import com.example.moviesdb.data.model.response.DeleteSessionResponse
 import com.example.moviesdb.data.paging.ApiDiscoverRemoteMediator
 import com.example.moviesdb.data.paging.ApiNowPlayingRemoteMediator
 import com.example.moviesdb.data.paging.ApiPopularRemoteMediator
@@ -39,8 +38,6 @@ import com.example.moviesdb.util.Constants.Companion.ITEMS_PER_PAGE
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -54,13 +51,13 @@ class Repository @Inject constructor(
     private val tag = "repository"
     private val sessionIDKey = stringPreferencesKey("session_id")
 
-    suspend fun getSessionID(): String? {
+    suspend fun getSessionIDFromDatastore(): String? {
         Log.d(tag, "getSessionID is called")
         val sessionIdFlow = dataStore.data.first()
         return sessionIdFlow[sessionIDKey]
     }
 
-    suspend fun saveSessionID(sessionID: String) {
+    suspend fun saveSessionIDToDatastore(sessionID: String) {
         dataStore.edit { preferences ->
             preferences[this.sessionIDKey] = sessionID
         }
@@ -175,7 +172,19 @@ class Repository @Inject constructor(
         }
     }
 
+    suspend fun deleteSession(deleteSessionRequest: DeleteSessionRequest): Result<DeleteSessionResponse> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = movieApi.deleteSession(sessionID = deleteSessionRequest.sessionID)
+                Result.success(response)
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
     suspend fun getAccountDetails(sessionID: String): Result<User> {
+        Log.d(tag, "getAccountDetails is called with sessionID: $sessionID")
         return withContext(Dispatchers.IO) {
             try {
                 val response = movieApi.getAccountDetails(sessionID = sessionID)

@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -18,8 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -32,9 +30,10 @@ import androidx.navigation.NavHostController
 import androidx.paging.ExperimentalPagingApi
 import com.example.moviesdb.SharedViewModel
 import com.example.moviesdb.data.state.LoginState
-import com.example.moviesdb.navigation.AuthenticationScreen
+import com.example.moviesdb.data.state.LoginSubState
 import com.example.moviesdb.navigation.Graph
 import com.example.moviesdb.screen.common.AnimatedPreloader
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalPagingApi::class)
 @Composable
@@ -45,6 +44,7 @@ fun LoginScreen(
 ) {
     val tag = "LoginScreen.kt"
     val loginState by loginViewModel.loginState
+    val loginSubState by loginViewModel.loginSubState
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
@@ -61,7 +61,7 @@ fun LoginScreen(
         verticalArrangement = Arrangement.SpaceEvenly
     ) {
         HeaderSection()
-        ContentSection(loginState, navController, loginViewModel, sharedViewModel, context)
+        ContentSection(loginState, loginSubState, navController, loginViewModel, sharedViewModel, context)
     }
 }
 
@@ -89,6 +89,7 @@ fun HeaderSection() {
 @Composable
 fun ContentSection(
     loginState: LoginState,
+    loginSubState: LoginSubState,
     navController: NavHostController,
     loginViewModel: LoginViewModel,
     sharedViewModel: SharedViewModel,
@@ -99,7 +100,7 @@ fun ContentSection(
         verticalArrangement = Arrangement.spacedBy(30.dp)
     ) {
         ForgotPasswordText()
-        LoginStateContent(loginState, navController, loginViewModel, sharedViewModel, context)
+        LoginStateContent(loginState, navController, loginViewModel, loginSubState, sharedViewModel, context)
         CreateAccountText(navController)
     }
 }
@@ -132,9 +133,13 @@ fun LoginStateContent(
     loginState: LoginState,
     navController: NavHostController,
     loginViewModel: LoginViewModel,
+    loginSubState: LoginSubState,
     sharedViewModel: SharedViewModel,
     context: Context
 ) {
+
+    val coroutineScope = rememberCoroutineScope()
+
     when (loginState) {
         is LoginState.Initial -> {
             LoginScreenMainButton(
@@ -152,29 +157,35 @@ fun LoginStateContent(
             LoginScreenMainButton(
                 text = "Create a session",
                 onClick = {
-                    loginViewModel.createSessionId(
-                        requestToken = sharedViewModel.requestToken.value,
-                        approved = sharedViewModel.approved.value
-                    )
+                    coroutineScope.launch {
+                        loginViewModel.createSessionId(
+                            requestToken = sharedViewModel.requestToken.value,
+                            approved = sharedViewModel.approved.value
+                        )
+                    }
                 }
             )
         }
-        is LoginState.CreateSessionIDSuccess -> {
-            AnimatedPreloader(modifier = Modifier.size(300.dp))
-            loginViewModel.saveSessionID(loginViewModel.getSessionID())
-            sharedViewModel.getUser(loginViewModel.getSessionID())
-
-        }
-        is LoginState.Success -> {
-            AnimatedPreloader(modifier = Modifier.size(300.dp))
-            navController.popBackStack()
-            navController.navigate(Graph.HOME)
-        }
         is LoginState.Error -> {
-            // Handle error state
+            /*TODO*/
         }
         is LoginState.Loading -> {
-            AnimatedPreloader(modifier = Modifier.size(300.dp))
+            AnimatedPreloader(modifier = Modifier.size(64.dp))
+            when(loginSubState) {
+                is LoginSubState.Initial -> {
+
+                }
+                is LoginSubState.CreateRequestTokenSuccess -> {
+                    loginViewModel.saveSessionIDToDatastore(loginViewModel.getSessionID())
+                    sharedViewModel.setSessionID(loginViewModel.getSessionID())
+                    sharedViewModel.getUser()
+                    navController.popBackStack()
+                    navController.navigate(Graph.HOME)
+                }
+                is LoginSubState.Error -> {
+                    /*TODO*/
+                }
+            }
         }
     }
 }
