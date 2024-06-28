@@ -19,12 +19,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.HowToVote
 import androidx.compose.material.icons.rounded.StarOutline
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -34,6 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -382,5 +386,53 @@ fun AnimatedPreloader(modifier: Modifier = Modifier) {
         composition = preloaderLottieComposition,
         progress = preloaderProgress,
         modifier = modifier
+    )
+}
+
+@Composable
+fun AlertDialogSample(
+    onDismissRequest: () -> Unit,
+    onConfirmation: () -> Unit,
+    dialogTitle: String,
+    dialogText: String,
+    icon: ImageVector,
+) {
+    AlertDialog(
+        icon = {
+            Icon(icon, contentDescription = "Example Icon")
+        },
+        title = {
+            Text(
+                text = dialogTitle,
+                textAlign = TextAlign.Center
+            )
+        },
+        text = {
+            Text(
+                text = dialogText,
+                textAlign = TextAlign.Center
+            )
+        },
+        onDismissRequest = {
+            onDismissRequest()
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onConfirmation()
+                }
+            ) {
+                Text("Confirm")
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = {
+                    onDismissRequest()
+                }
+            ) {
+                Text("Dismiss")
+            }
+        }
     )
 }

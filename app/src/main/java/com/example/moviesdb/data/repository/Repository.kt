@@ -19,9 +19,11 @@ import com.example.moviesdb.data.model.MovieByTopRated
 import com.example.moviesdb.data.model.MovieByUpcoming
 import com.example.moviesdb.data.model.Review
 import com.example.moviesdb.data.model.User
+import com.example.moviesdb.data.model.request.AddToWatchlistRequest
 import com.example.moviesdb.data.model.request.CreateSessionRequest
 import com.example.moviesdb.data.model.response.CreateSessionResponse
 import com.example.moviesdb.data.model.request.DeleteSessionRequest
+import com.example.moviesdb.data.model.response.AddToWatchlistResponse
 import com.example.moviesdb.data.model.response.RequestTokenResponse
 import com.example.moviesdb.data.model.response.DeleteSessionResponse
 import com.example.moviesdb.data.paging.ApiDiscoverRemoteMediator
@@ -202,5 +204,14 @@ class Repository @Inject constructor(
             WatchlistPagingSource(movieApi = movieApi, sessionID = sessionID, accountID = accountID)
         }
         ).flow
+    }
+
+    suspend fun addToWatchlist(accountID: Int, sessionID: String, request: AddToWatchlistRequest): Result<AddToWatchlistResponse> {
+        return try {
+            val response = movieApi.addToWatchlist(accountID, sessionID, request)
+            Result.success(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 }

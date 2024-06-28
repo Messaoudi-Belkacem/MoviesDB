@@ -1,5 +1,6 @@
 package com.example.moviesdb.screen.watchlist
 
+import android.app.Activity
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -27,6 +28,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -45,6 +48,7 @@ import com.example.moviesdb.R
 import com.example.moviesdb.SharedViewModel
 import com.example.moviesdb.data.state.LogoutState
 import com.example.moviesdb.navigation.Graph
+import com.example.moviesdb.screen.common.AlertDialogSample
 import com.example.moviesdb.screen.common.SearchListContent
 import com.example.moviesdb.screen.home.LoadingCircle
 
@@ -59,6 +63,7 @@ fun BookmarksScreen(
     val logoutState by sharedViewModel.logoutState
     val bookmarkedMovies = bookmarksViewModel.bookmarkedMovies.collectAsLazyPagingItems()
     val tag = "BookmarksScreen.kt"
+    val openAlertDialog = remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         val user = sharedViewModel.user.value
@@ -96,7 +101,7 @@ fun BookmarksScreen(
                     fontSize = MaterialTheme.typography.titleMedium.fontSize
                 )
                 IconButton(onClick = {
-                    sharedViewModel.deleteSession()
+                    sharedViewModel.setLogoutState(LogoutState.ShowLogoutDialog)
                 }) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Rounded.Logout,
@@ -197,16 +202,29 @@ fun BookmarksScreen(
                             }
                         }
                     }
+                    is LogoutState.ShowLogoutDialog -> {
+                        AlertDialogSample(
+                            onDismissRequest = {
+                                sharedViewModel.setLogoutState(LogoutState.Initial)
+                            },
+                            onConfirmation = {
+                                sharedViewModel.deleteSession()
+                            },
+                            dialogTitle = "Logout alert",
+                            dialogText = "Are you sure you want to logout?",
+                            icon = Icons.AutoMirrored.Rounded.Logout
+                        )
+                    }
                     is LogoutState.Error -> {
-                        /* TODO create a popup that apologizes foe not being able to logout */
+                        /* TODO create a popup that apologizes for not being able to logout */
                         sharedViewModel.setLogoutState(logoutState = LogoutState.Initial)
                     }
                     is LogoutState.Loading -> {
                         LoadingCircle()
                     }
                     is LogoutState.Success -> {
-                        navController.popBackStack()
-                        navController.navigate(Graph.AUTHENTICATION)
+                        val activity = LocalContext.current as? Activity
+                        activity?.finishAffinity()
                     }
                 }
             }

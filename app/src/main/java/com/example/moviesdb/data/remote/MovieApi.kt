@@ -1,8 +1,10 @@
 package com.example.moviesdb.data.remote
 
 import com.example.moviesdb.data.model.User
+import com.example.moviesdb.data.model.request.AddToWatchlistRequest
 import com.example.moviesdb.data.model.response.CastResponse
 import com.example.moviesdb.data.model.request.CreateSessionRequest
+import com.example.moviesdb.data.model.response.AddToWatchlistResponse
 import com.example.moviesdb.data.model.response.CreateSessionResponse
 import com.example.moviesdb.data.model.response.MovieResponse
 import com.example.moviesdb.data.model.response.MovieResponseByDiscover
@@ -109,4 +111,10 @@ interface MovieApi {
         @Query("sort_by") sortBy: String = "created_at.asc",
     ): MovieResponse
 
+    @POST("account/{account_id}/watchlist")
+    suspend fun addToWatchlist(
+        @Path("account_id") accountID: Int,
+        @Query("session_id") sessionID: String,
+        @Body rawBody: AddToWatchlistRequest
+    ): AddToWatchlistResponse
 }

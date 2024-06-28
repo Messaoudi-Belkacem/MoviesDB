@@ -65,6 +65,7 @@ import com.example.moviesdb.SharedViewModel
 import com.example.moviesdb.data.model.CastMember
 import com.example.moviesdb.data.model.Movie
 import com.example.moviesdb.data.model.Review
+import com.example.moviesdb.data.state.AddToWatchlistState
 import com.example.moviesdb.navigation.Graph
 import com.example.moviesdb.screen.common.CastMemberComposable
 import com.example.moviesdb.screen.common.ReviewComposable
@@ -89,6 +90,7 @@ fun DetailsScreen(
 
     val reviews = detailsViewModel.reviewsFlow.collectAsLazyPagingItems()
     val cast = detailsViewModel.castFlow.collectAsLazyPagingItems()
+    val addToWatchlistState = detailsViewModel.addToWatchlist
 
     LaunchedEffect(Unit) {
         if (movie != null) {
@@ -111,7 +113,6 @@ fun DetailsScreen(
             ) {
                 IconButton(onClick = {
                     navController.popBackStack()
-                    navController.navigate(Graph.HOME)
                 }) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
@@ -122,7 +123,17 @@ fun DetailsScreen(
                     "Detail",
                     fontSize = MaterialTheme.typography.titleMedium.fontSize
                 )
-                IconButton(onClick = { /* do something */ }) {
+                IconButton(
+                    onClick = {
+                        if (movie != null) {
+                            detailsViewModel.addToWatchlist(
+                                accountID = sharedViewModel.user.value?.id ?: 20139247,
+                                sessionID = sharedViewModel.sessionID.value,
+                                mediaID = movie.id
+                            )
+                        }
+                    }
+                ) {
                     Icon(
                         imageVector = Icons.Rounded.Bookmark,
                         contentDescription = "Localized description"
@@ -136,6 +147,20 @@ fun DetailsScreen(
                     .padding(paddingValues)
                     .fillMaxSize()
             ) {
+                /*when(addToWatchlistState) {
+                    is (AddToWatchlistState.Initial) -> {
+
+                    }
+                    is (AddToWatchlistState.Loading) -> {
+
+                    }
+                    is (AddToWatchlistState.Success) -> {
+
+                    }
+                    is (AddToWatchlistState.Error) -> {
+
+                    }
+                }*/
                 if (movie == null) {
                     Box(
                         modifier = Modifier
