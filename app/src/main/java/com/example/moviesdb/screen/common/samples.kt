@@ -158,7 +158,6 @@ fun MovieItem(
                 .height(210.dp)
                 .width(140.dp)
                 .clickable {
-                    navController.popBackStack()
                     navController.navigate(Graph.DETAILS)
                     sharedViewModel.setSelectedMovie(movie)
                 }
@@ -296,7 +295,6 @@ fun SearchListContent(
         modifier = Modifier
             .fillMaxWidth()
             .clickable {
-                navController.popBackStack()
                 navController.navigate(Graph.DETAILS)
                 sharedViewModel.setSelectedMovie(movie)
             }

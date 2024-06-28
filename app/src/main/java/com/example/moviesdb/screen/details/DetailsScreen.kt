@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -48,6 +49,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -113,6 +115,7 @@ fun DetailsScreen(
             ) {
                 IconButton(onClick = {
                     navController.popBackStack()
+                    navController.navigate(Graph.HOME)
                 }) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
@@ -373,13 +376,19 @@ fun InfoRow(
     Row(
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Icon(imageVector = imageVector, contentDescription = null)
+        Icon(
+            imageVector = imageVector,
+            contentDescription = null,
+            modifier = Modifier
+                .size(16.dp)
+        )
         Spacer(modifier = Modifier.width(4.dp))
         Text(
             text = text,
             modifier = Modifier,
             color = MaterialTheme.typography.titleLarge.color,
-            fontSize = MaterialTheme.typography.bodySmall.fontSize
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Medium
         )
     }
 }
